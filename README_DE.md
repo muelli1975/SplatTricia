@@ -51,4 +51,8 @@ Aktive Betreuung, Support, die Bearbeitung von Issues oder die Prüfung von Pull
 
 Der von Christoph Müller erstellte SplatTricia-Quellcode und die eigene Dokumentation stehen unter der **MIT-Lizenz**. SHARP und alle weiteren Drittanbieter-Komponenten unterliegen weiterhin ausschließlich ihren jeweiligen eigenen Lizenzen.
 
-Fertige Windows-Pakete werden unter **GitHub Releases** veröffentlicht.
+## Windows-Download
+
+Die portable Windows-Version ist hier erhältlich:
+
+https://traumnarben.de/download/SplatTricia_1.0.zip
