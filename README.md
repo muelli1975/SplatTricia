@@ -51,4 +51,8 @@ Active maintenance, support, issue handling or pull-request review cannot be gua
 
 SplatTricia source code and original documentation created by Christoph Müller are licensed under the **MIT License**. SHARP and all other third-party components remain subject solely to their respective licenses.
 
-Prebuilt Windows packages are published under **GitHub Releases**.
+## Windows download
+
+The portable Windows version is available here:
+
+https://traumnarben.de/download/SplatTricia_1.0.zip
