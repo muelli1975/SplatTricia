@@ -1,47 +1,54 @@
 # SplatTricia 1.0
 
-SplatTricia is a local Windows tool for experimental conversion of individual 2D images or complete image folders into stereoscopic 3D. For each image it generates a parallel side-by-side stereo image (SBS) and, optionally, a color or grayscale anaglyph.
+[Deutsche Dokumentation](README_DE.md)
 
-The 3D reconstruction is based on **Apple SHARP**. SplatTricia processes images locally, performs no automatic model downloads, and does not require cloud services or an online connection during use.
+SplatTricia is a local Windows tool for automatically converting individual 2D images or complete image folders into stereo 3D. Each image produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
 
-**Deutsch:** [README_DE.md](README_DE.md)
+The 3D reconstruction is based on **Apple SHARP**. SplatTricia processes images locally, performs no automatic model downloads, and does not require cloud or online services for normal use.
 
 ## Requirements
 
 - Windows 10 or 11
-- compatible NVIDIA GPU with a current driver
-- a locally provided SHARP checkpoint at `models\sharp_2572gikvuh.pt`
+- compatible NVIDIA graphics card with a current driver
+- locally supplied SHARP checkpoint at `models\sharp_2572gikvuh.pt`
 
-The SHARP checkpoint is **not part of SplatTricia** and is not provided in this repository. SHARP and the model remain subject to Apple's own license terms.
+The SHARP checkpoint is **not part of SplatTricia** and is not provided in this repository. Apple's model license terms apply.
 
-## Basic concept
+## Basic use
 
-SplatTricia creates two parallel views from the scene reconstructed by SHARP. **Deviation** controls the horizontal depth range of the generated stereo scene. **Window position** determines how that depth is placed relative to the stereo window. **Floating-window curtains** can mask edge regions without changing the geometry of the scene itself.
+1. Select a single image or an image folder.
+2. Use an output folder beside the input or select a custom output folder.
+3. Set the desired deviation and stereo-window position.
+4. Add floating-window curtains when required.
+5. Select colour or grayscale anaglyph output.
+6. Click **Start**.
 
-Automatic 2D-to-3D conversion remains a geometric estimate. For projection or other demanding uses, deviation, window position, and image borders should be checked visually.
+## Stereo controls
+
+**Deviation** controls the horizontal depth range of the generated stereo scene. **Stereo-window position** determines how that depth is distributed relative to the picture plane. The additional window backshift is available only at a window position of 100%. **Floating-window curtains** mask edge areas without changing the scene geometry itself.
+
+Automatic 2D-to-3D conversion remains a geometric estimate. For projection or other demanding uses, deviation, window placement and image edges should be checked visually.
 
 ## Output
 
-SplatTricia generates:
+The selected output location contains:
 
-- parallel side-by-side stereo images
-- optional color or grayscale anaglyphs
-- a reusable PLY cache for fast re-rendering with different stereo settings
+- `sbs`: parallel side-by-side stereo images
+- `anaglyph`: colour or grayscale anaglyphs
+- `_temp`: cached PLY point clouds and validation data
 
-Where technically possible, metadata from suitable source files is copied to the final JPEG outputs.
+Valid PLY files can be reused, allowing stereo settings to be rendered again without running SHARP a second time. **Delete temporary files** removes only `_temp`; finished images remain untouched.
 
-## Source code
+Existing output images are replaced without prompting. **Append settings to filename** can be used to keep deliberately created variants side by side.
 
-This repository exists to publish and preserve the SplatTricia source code. Build notes, a release checklist, and documented design, state, and folder rules are included as well.
+Where technically possible, SplatTricia copies metadata from suitable source files to the finished JPEG outputs.
 
-Active maintenance, support, or the handling of issues and pull requests cannot be guaranteed.
+## Source code and long-term use
 
-The SplatTricia code and original documentation created by Christoph Müller are released under the **MIT License**. SHARP and all other third-party components retain their respective licenses; the SplatTricia MIT License does not alter those terms.
+This repository contains the SplatTricia source code together with build notes, a release checklist, and documented design, state and folder conventions. The aim is to keep the program understandable and usable for future development and for the stereoscopic community.
 
-## Windows version
+Active maintenance, support, issue handling or pull-request review cannot be guaranteed.
 
-The current 1.0 release is available here:
+SplatTricia source code and original documentation created by Christoph Müller are licensed under the **MIT License**. SHARP and all other third-party components remain subject solely to their respective licenses.
 
-https://traumnarben.de/download/SplatTricia_1.0.zip
-
-The download link may later move to the StereoFine website.
+Prebuilt Windows packages are published under **GitHub Releases**.

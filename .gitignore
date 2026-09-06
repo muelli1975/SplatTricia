@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Build output
+build/
+dist/
+build_native/
+*.zip
+
+# Runtime/user data
+settings.json
+splattricia_error.log
+_temp/
+output/
+
+# Local models and external source trees
+models/*
+!models/.gitkeep
+_src/
+tools/
+
+# Test and scratch data
+test/
+tests/

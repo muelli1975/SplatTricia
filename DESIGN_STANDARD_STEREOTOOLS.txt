@@ -1,0 +1,263 @@
+SPLATTRICIA / STEREO-TOOLS
+GESTALTUNGS- UND BEDIENSTANDARD
+================================
+
+Zweck
+-----
+Diese Notiz beschreibt die verbindlichen Gestaltungs-, Zustands- und
+Ordnerprinzipien, die sich beim Aufbau von SplatTricia bewährt haben und bei
+weiteren Stereo-Werkzeugen als gemeinsame Basis dienen können. Sie ist keine
+Benutzeranleitung, sondern eine Entwicklungsreferenz.
+
+
+FARBPALETTE
+-----------
+Haupthintergrund              #111111
+Weicher Hintergrund           #181818
+Panel                         #202020
+Panel Hover                   #282828
+Rahmen / Linien               #333333
+Text                          #f2f2f2
+Gedämpfter Text               #b8b8b8
+Deaktiviert                   #727272
+Gold                          #9c7c38
+Gold hell                     #c6a95e
+Vorschauhintergrund           #000000
+
+Fenstertitel / Branding:      #c6a95e
+Normale Abschnittsüberschrift:#f2f2f2
+Fortschrittsbalken:           #9c7c38 auf #333333
+
+
+PRIMÄRER START-BUTTON
+---------------------
+Leerlauf:
+- Hintergrund #181818
+- Rahmen #9c7c38
+- Text #c6a95e
+
+Hover:
+- Hintergrund #c6a95e
+- Rahmen #c6a95e
+- Text #111111
+
+Deaktiviert:
+- Hintergrund #181818
+- Rahmen #333333
+- Text #727272
+- kein Goldakzent
+
+
+SEKUNDÄRE BUTTONS
+-----------------
+Normal:
+- Hintergrund #181818
+- Rahmen #333333
+
+Hover:
+- Hintergrund #282828
+
+Sekundäre Aktionen werden nicht künstlich vergoldet.
+
+
+SLIDER
+------
+Aktiv:
+- inaktive Spur #333333
+- Fortschritt #9c7c38
+- Griff #c6a95e
+- Hover-Griff #c6a95e
+
+Deaktiviert:
+- Spur #333333
+- Fortschritt #333333
+- Griff #727272
+- Hover-Griff #727272
+- kein Goldakzent
+
+Ein deaktivierter Slider darf nicht weiterhin wie eine aktive Einstellung
+wirken. Abhängige Slider werden nicht nur funktional gesperrt, sondern auch
+sichtbar in den inaktiven Zustand versetzt.
+
+
+CHECKBOXEN
+----------
+Aktiv markiert:
+- Markierungsfläche #9c7c38
+- Haken hell / Standard-Kontrastfarbe des Widgets
+
+Deaktiviert:
+- Markierungsfläche #727272
+- Text #727272
+- Haken bleibt kontrastreich sichtbar, damit der gesetzte Wert erkennbar bleibt
+
+
+AKTIV / INAKTIV
+---------------
+Grundregel:
+- Aktiv: normale Textfarbe und gegebenenfalls Goldakzent
+- Inaktiv: #727272 und kein Goldakzent
+- Dunkle Flächen und Rahmen ändern sich nach Möglichkeit nicht
+
+Ein gespeicherter Wert bleibt sichtbar, auch wenn die dazugehörige Funktion
+vorübergehend inaktiv ist. Inaktiv bedeutet nicht "Wert vergessen".
+
+Beispiel eigener Ausgabeordner:
+- Beschriftung bleibt "Eigener Ausgabeordner"
+- gespeicherter Pfad bleibt immer sichtbar
+- aktiv: Label und Pfad #f2f2f2
+- inaktiv: Label und Pfad #727272
+- Feldhintergrund bleibt #181818
+- Feldrahmen bleibt #333333
+
+Der Button zum Auswählen eines eigenen Ausgabeordners darf im Leerlauf aktiv
+bleiben und durch eine neue Auswahl direkt auf diesen Modus umschalten.
+
+
+GLOBALER VERARBEITUNGSZUSTAND
+-----------------------------
+Während einer laufenden Verarbeitung werden alle Einstellungen und Aktionen
+gesperrt, die den aktiven Auftrag verändern oder Dateien löschen könnten.
+Aktiv bleibt nur "Abbrechen".
+
+Zu sperren sind insbesondere:
+- Sprache
+- Input- und Outputauswahl
+- Ausgabemodus
+- Eingabefelder
+- Slider und Optionen
+- Standardwerte
+- Löschen temporärer Dateien
+- Start
+
+Nach Abschluss, Abbruch oder Fehler:
+1. Grundzustand der Bedienelemente wieder freigeben.
+2. Danach alle logischen Abhängigkeiten erneut anwenden.
+
+Dadurch erscheinen z. B. ein bei 100 % erlaubter Rückversatz oder durch
+Vorhänge gesperrte Richtungen wieder exakt im richtigen Zustand.
+
+
+OPTIONMENÜS
+-----------
+Schlichte CustomTkinter-OptionMenus ohne zusätzliche Rahmenkonstruktionen:
+- Basis #202020
+- rechter Buttonbereich #282828
+- Button-Hover #333333
+- Dropdown #181818
+- Dropdown-Hover #282828
+- Text #f2f2f2
+
+
+VORSCHAUFLÄCHEN
+---------------
+Für StereoFine / AnaChroma bzw. vergleichbare Bildvorschauen:
+- Bühnenhintergrund reines Schwarz (#000000)
+- Bild klar vom restlichen UI getrennt
+- vorgesehener dynamischer Schwarzrand rund um die dargestellte Bildfläche:
+  max(16 px, round(dargestellte_Bildbreite * 0.030) + 2)
+
+Der Rand gehört zur Darstellung/Vorschau und darf nicht unbeabsichtigt die
+Quelldatei oder eigentliche Stereo-Geometrie verändern.
+
+
+DATEI- UND DIALOGLOGIK
+----------------------
+Input und Output besitzen getrennte Dialoggedächtnisse.
+
+Inputdialog:
+- beginnt beim zuletzt verwendeten Input-Quellordner
+- die Auswahl eines Outputordners darf diesen Startort nicht verändern
+
+Outputdialog:
+- beginnt beim gespeicherten eigenen Ausgabeordner
+
+Ein neuer Input verändert niemals automatisch:
+- den Ausgabemodus
+- den gespeicherten eigenen Ausgabeordner
+- die zugehörige Checkbox
+
+Gespeicherte Pfade und Einstellungen bleiben erhalten, bis der Nutzer sie
+bewusst ändert.
+
+
+AUSGABEORDNER-LOGIK SPLATTRICIA
+-------------------------------
+Es gibt zwei Ausgabearten:
+
+1. "Unterordner im Input-Ordner verwenden" aktiv
+   -> tatsächlicher Zielordner: <Input-Root>\output
+   -> eigener Ausgabeordner bleibt gespeichert und sichtbar, wird aber nicht
+      verwendet und erscheint visuell deaktiviert
+
+2. Option deaktiviert
+   -> tatsächlicher Zielordner: gespeicherter eigener Ausgabeordner
+
+Der berechnete <Input>\output-Pfad ersetzt niemals den sichtbaren gespeicherten
+eigenen Ausgabeordner im Feld.
+
+Die Wahl eines neuen eigenen Ausgabeordners schaltet direkt auf diesen
+Ausgabemodus um.
+
+
+DATEINAMEN / ÜBERSCHREIBEN
+--------------------------
+SplatTricia verwendet bewusst einfache, nachvollziehbare Dateinamen.
+Bestehende fertige Dateien mit gleichem Zielnamen werden ohne Rückfrage
+ersetzt.
+
+Die optionale Ergänzung der Stereo-Einstellungen im Dateinamen dient dazu,
+bewusst erzeugte Varianten nebeneinander zu behalten.
+
+Quellen mit gleichem Stammnamen können im gleichen gemeinsamen Ausgabeordner
+kollidieren. Es werden keine versteckten Source-IDs oder Hashes in sichtbare
+Dateinamen eingebaut.
+
+
+TEMP / PLY-CACHE
+----------------
+Alle entfernbaren Arbeits- und Cachedateien liegen unter _temp.
+Der gesamte _temp-Ordner darf gelöscht werden.
+
+Zum wiederverwendbaren Cache gehören:
+- PLY-Datei der rekonstruierten Szene
+- JSON-Sidecar mit den zur Validierung erforderlichen Daten
+
+Der Cache wird nur wiederverwendet, wenn Quelle und relevante Parameter zum
+hinterlegten Fingerprint passen.
+
+Fertige SBS- und Anaglyphenbilder liegen niemals ausschließlich in _temp.
+"Temporäre Dateien löschen" darf keine fertigen Ergebnisse entfernen.
+
+
+OFFLINE-PRINZIP
+---------------
+Produktive Anwendung vollständig lokal:
+- keine automatischen Modell-Downloads
+- keine HTTP-Prüfungen
+- keine Tokens
+- keine Abhängigkeit von externen Modell-Caches
+- benötigte Modelle sichtbar unter models
+
+Fehlende Modelle führen zu einer verständlichen lokalen Fehlermeldung statt zu
+einem Netzwerkzugriff.
+
+
+RELEASE / SOURCE
+----------------
+Ein stabiler Release enthält neben der Anwendung einen source-Unterordner mit
+dem exakt zu dieser Version gehörenden relevanten Quellstand.
+
+Der Source-Snapshot enthält nur bewusst freigegebene Projektbestandteile.
+Nicht enthalten sind insbesondere:
+- virtuelle Umgebungen
+- Build- und Dist-Verzeichnisse
+- Nutzer-Einstellungen
+- Logs
+- Test-/Outputdaten
+- lokale Modelle
+- fremde Source-Checkouts
+
+README-Dateien bleiben kompakt und erklären Grundidee, zentrale Funktionen,
+Voraussetzungen, Ausgabe, Offline-Prinzip, Modelltrennung und Source-Verfügbarkeit.
+Interne Detailregeln stehen in Entwicklungsnotizen wie dieser Datei.
