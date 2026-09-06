@@ -1,47 +1,47 @@
 # SplatTricia 1.0
 
-SplatTricia ist ein lokales Windows-Werkzeug zur experimentellen Konvertierung einzelner 2D-Bilder oder ganzer Bildordner in Stereo-3D. Aus jedem Bild werden ein paralleles Side-by-Side-Stereobild (SBS) und wahlweise eine Farb- oder Graustufen-Anaglyphe erzeugt.
+SplatTricia is a local Windows tool for experimental conversion of individual 2D images or complete image folders into stereoscopic 3D. For each image it generates a parallel side-by-side stereo image (SBS) and, optionally, a color or grayscale anaglyph.
 
-Die 3D-Rekonstruktion basiert auf **Apple SHARP**. SplatTricia verarbeitet Bilder lokal, führt keine automatischen Modell-Downloads durch und benötigt für die Benutzung keine Cloud oder Online-Verbindung.
+The 3D reconstruction is based on **Apple SHARP**. SplatTricia processes images locally, performs no automatic model downloads, and does not require cloud services or an online connection during use.
 
-**English documentation:** [README_EN.txt](README_EN.txt)
+**Deutsch:** [README_DE.md](README_DE.md)
 
-## Voraussetzungen
+## Requirements
 
-- Windows 10 oder 11
-- kompatible NVIDIA-Grafikkarte mit aktuellem Treiber
-- lokal bereitgestellter SHARP-Checkpoint unter `models\sharp_2572gikvuh.pt`
+- Windows 10 or 11
+- compatible NVIDIA GPU with a current driver
+- a locally provided SHARP checkpoint at `models\sharp_2572gikvuh.pt`
 
-Der SHARP-Checkpoint ist **nicht Bestandteil von SplatTricia** und wird in diesem Repository nicht bereitgestellt. Für SHARP und das Modell gelten Apples eigene Lizenzbedingungen.
+The SHARP checkpoint is **not part of SplatTricia** and is not provided in this repository. SHARP and the model remain subject to Apple's own license terms.
 
-## Grundprinzip
+## Basic concept
 
-SplatTricia erzeugt aus der von SHARP rekonstruierten Szene zwei parallele Ansichten. Die **Deviation** bestimmt die horizontale Tiefenausdehnung der erzeugten Stereoszene. Die **Scheinfensterlage** legt fest, wie diese Tiefe relativ zur Bildebene verteilt wird. **Floating-Window-Vorhänge** können Randbereiche maskieren, ohne die Geometrie der Szene selbst zu verändern.
+SplatTricia creates two parallel views from the scene reconstructed by SHARP. **Deviation** controls the horizontal depth range of the generated stereo scene. **Window position** determines how that depth is placed relative to the stereo window. **Floating-window curtains** can mask edge regions without changing the geometry of the scene itself.
 
-Automatische 2D-zu-3D-Konvertierung bleibt eine geometrische Schätzung. Für Projektion oder andere anspruchsvolle Anwendungen sollten Deviation, Scheinfensterlage und Bildränder visuell kontrolliert werden.
+Automatic 2D-to-3D conversion remains a geometric estimate. For projection or other demanding uses, deviation, window position, and image borders should be checked visually.
 
-## Ausgabe
+## Output
 
-SplatTricia erzeugt:
+SplatTricia generates:
 
-- parallele Side-by-Side-Stereobilder
-- wahlweise Farb- oder Graustufen-Anaglyphen
-- einen wiederverwendbaren PLY-Zwischenspeicher für schnelles erneutes Rendern mit anderen Stereo-Einstellungen
+- parallel side-by-side stereo images
+- optional color or grayscale anaglyphs
+- a reusable PLY cache for fast re-rendering with different stereo settings
 
-Soweit technisch möglich, werden Metadaten geeigneter Quelldateien in die fertigen JPEG-Ausgaben übernommen.
+Where technically possible, metadata from suitable source files is copied to the final JPEG outputs.
 
-## Source Code
+## Source code
 
-Dieses Repository dient der Veröffentlichung und langfristigen Verfügbarkeit des SplatTricia-Quellcodes. Build-Hinweise, Release-Checkliste sowie die dokumentierten Gestaltungs-, Zustands- und Ordnerregeln sind ebenfalls enthalten.
+This repository exists to publish and preserve the SplatTricia source code. Build notes, a release checklist, and documented design, state, and folder rules are included as well.
 
-Aktive Betreuung, Support oder die Bearbeitung von Issues und Pull Requests können nicht zugesichert werden.
+Active maintenance, support, or the handling of issues and pull requests cannot be guaranteed.
 
-Der von Christoph Müller erstellte SplatTricia-Code und die eigene Dokumentation stehen unter der **MIT-Lizenz**. SHARP sowie alle weiteren Drittanbieter-Komponenten behalten ihre jeweiligen eigenen Lizenzen; die MIT-Lizenz für SplatTricia ändert daran nichts.
+The SplatTricia code and original documentation created by Christoph Müller are released under the **MIT License**. SHARP and all other third-party components retain their respective licenses; the SplatTricia MIT License does not alter those terms.
 
-## Windows-Version
+## Windows version
 
-Die aktuelle Version 1.0 ist derzeit hier verfügbar:
+The current 1.0 release is available here:
 
 https://traumnarben.de/download/SplatTricia_1.0.zip
 
-Der Download-Link kann später auf die StereoFine-Webseite umziehen.
+The download link may later move to the StereoFine website.
