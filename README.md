@@ -1,6 +1,6 @@
 # SplatTricia 1.0
 
-[Deutsche Dokumentation](README_DE.md)
+[Deutsch](README_DE.md)
 
 SplatTricia is a local Windows tool for automatically converting individual 2D images or complete image folders into stereo 3D. Each image produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
 
