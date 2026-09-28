@@ -20,6 +20,24 @@ def check_python_syntax() -> None:
         ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
 
+def check_gui_entrypoint() -> None:
+    gui_path = SRC / "splattricia" / "gui.py"
+    gui_tree = ast.parse(gui_path.read_text(encoding="utf-8"), filename=str(gui_path))
+    functions = {
+        node.name for node in gui_tree.body if isinstance(node, ast.FunctionDef)
+    }
+    if "run_gui" not in functions:
+        fail("GUI-Einstiegspunkt run_gui() fehlt in src/splattricia/gui.py.")
+
+    launcher_text = (ROOT / "launcher.py").read_text(encoding="utf-8")
+    for marker in [
+        "from splattricia.gui import run_gui",
+        "run_gui()",
+    ]:
+        if marker not in launcher_text:
+            fail(f"GUI-Launcher verweist nicht korrekt auf run_gui(): {marker}")
+
+
 def check_locales() -> None:
     de_path = SRC / "splattricia" / "locales" / "de.json"
     en_path = SRC / "splattricia" / "locales" / "en.json"
@@ -103,6 +121,7 @@ def main() -> int:
     args = parser.parse_args()
 
     check_python_syntax()
+    check_gui_entrypoint()
     check_locales()
     check_version()
     check_metadata_no_console()
