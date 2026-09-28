@@ -1105,3 +1105,11 @@ def main(app_dir: Path) -> int:
     app = SplatTriciaApp(app_dir)
     app.mainloop()
     return 0
+
+
+def run_gui() -> int:
+    if getattr(sys, "frozen", False):
+        app_dir = Path(sys.executable).resolve().parent
+    else:
+        app_dir = Path(__file__).resolve().parents[2]
+    return main(app_dir)
