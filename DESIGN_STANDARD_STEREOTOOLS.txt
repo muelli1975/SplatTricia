@@ -1,7 +1,7 @@
 STEREO-TOOLS
 GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
 ==========================================
-Version 1.2 | Stand: 9. Oktober 2026
+Version 1.3 | Stand: 9. Oktober 2026
 
 Zweck
 -----
@@ -262,12 +262,12 @@ Projektbesonderheiten ausdrücklich erhalten:
   diese Dokumentation führt keine GUI oder neue Batch-Ordnerlogik ein.
 
 Ordnerverarbeitung AnaChroma/Freeda:
-- unter dem gewählten Ausgabe-Root den Quellordnernamen und dessen relative
+- Bilder direkt im gewählten Ausgabe-Root speichern; die relativen
   Unterordner spiegeln, unabhängig von Standard- oder eigenem Ausgabeziel
 - Beispiel Urlaub/Tag1/bild.jpg ->
-  <Ziel>/Urlaub/Tag1/<Ausgabedateiname>
+  <Ziel>/Tag1/<Ausgabedateiname>
 - bei Einzeldateien keine künstliche Quellordnerwurzel ergänzen
-- Ausgabeziel zeigt bei Ordnerverarbeitung <Ziel>/<Quellordnername>
+- Ausgabeziel zeigt bei Einzelbild und Ordnerverarbeitung den gewählten Ziel-Root
 - Ausgabeordner und temporäre Verzeichnisse von rekursiver Eingabesuche
   ausschließen; erzeugte Dateien erweitern einen laufenden Auftrag nicht
 
@@ -334,6 +334,11 @@ einem Netzwerkzugriff.
 
 RELEASE / SOURCE
 ----------------
+Programmordner und Programmdatei tragen den festen Programmnamen ohne
+Version oder Architektur. Version und Plattform stehen im Downloadarchivnamen.
+AnaChroma/Freeda bieten unter der Vorschau eine anklickbare, übersetzte
+Übersicht der vorhandenen Tastenkürzel.
+
 Ein stabiler Release enthält neben der Anwendung einen source-Unterordner mit
 dem exakt zu dieser Version gehörenden relevanten Quellstand.
 
