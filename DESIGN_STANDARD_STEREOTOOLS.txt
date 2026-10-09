@@ -1,14 +1,25 @@
-SPLATTRICIA / STEREO-TOOLS
-GESTALTUNGS- UND BEDIENSTANDARD
-================================
+STEREO-TOOLS
+GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
+==========================================
+Version 1.1 | Stand: 9. Oktober 2026
 
 Zweck
 -----
-Diese Notiz beschreibt die verbindlichen Gestaltungs-, Zustands- und
-Ordnerprinzipien, die sich beim Aufbau von SplatTricia bewährt haben und bei
-weiteren Stereo-Werkzeugen als gemeinsame Basis dienen können. Sie ist keine
-Benutzeranleitung, sondern eine Entwicklungsreferenz.
+Diese Entwicklungsreferenz gilt gemeinsam für StereoFine, SplatTricia,
+AnaChroma, Freeda und AnaglyphBatch. Gemeinsame Regeln und ausdrücklich
+benannte Projektbesonderheiten sind getrennt. AnaglyphBatch hat keine GUI;
+GUI-Regeln gelten dort als Referenz für verwandte Werkzeuge.
 
+Diese Datei enthält verbindliche Gestaltungsvorgaben und vereinbarte Ziele,
+keine Behauptung, dass jede Vorgabe bereits in jedem Programm umgesetzt ist.
+Den tatsächlichen Umsetzungs- und Prüfstand im jeweiligen Repository prüfen.
+Insbesondere noch geplante Funktionen nicht als vorhandene Funktionen
+beschreiben. Im Zweifel gilt die aktuelle ausdrückliche Nutzerentscheidung.
+
+Alle fünf Repositories führen denselben Wortlaut und dieselbe Versionsangabe.
+Änderungen am gemeinsamen Standard in allen fünf Kopien nachziehen. Ausnahmen
+mit Projektname und fachlichem Grund hier ergänzen, statt still eigene Regeln
+oder alternative Standarddateien einzuführen.
 
 FARBPALETTE
 -----------
@@ -149,16 +160,59 @@ Schlichte CustomTkinter-OptionMenus ohne zusätzliche Rahmenkonstruktionen:
 - Text #f2f2f2
 
 
-VORSCHAUFLÄCHEN
----------------
-Für StereoFine / AnaChroma bzw. vergleichbare Bildvorschauen:
-- Bühnenhintergrund reines Schwarz (#000000)
-- Bild klar vom restlichen UI getrennt
-- vorgesehener dynamischer Schwarzrand rund um die dargestellte Bildfläche:
-  max(16 px, round(dargestellte_Bildbreite * 0.030) + 2)
+VORSCHAU: BERECHNUNG, ANZEIGE UND SCHWARZRAND
+--------------------------------------------
+Berechnungsauflösung und angezeigte Bildgröße sind verschiedene Größen.
+Die Vorschau wird proportional in die verfügbare Fensterfläche eingepasst.
+Fenstergröße oder langsamere Berechnung dürfen weder die Quelle verändern
+noch Bildränder abschneiden.
 
-Der Rand gehört zur Darstellung/Vorschau und darf nicht unbeabsichtigt die
-Quelldatei oder eigentliche Stereo-Geometrie verändern.
+AnaChroma:
+- normale Verfahren: maximal 1600 px lange Seite der berechneten Anaglyphe
+- CIELab: maximal 1024 px lange Seite wegen des höheren Rechenaufwands
+- möglichst nur die für die Anzeige benötigte Vorschauauflösung berechnen
+- CIELab nutzt dieselbe Bildfläche und dasselbe Seitenverhältnis wie andere
+  Verfahren; eine begrenzte Berechnungsauflösung ist kein kleineres Layout
+- eine reduzierte Vorschau darf dafür zur Anzeige vergrößert werden; das
+  erhöht nicht ihre Detailauflösung
+- diese Anzeigeanpassung ist als Vorgabe von ihrem Umsetzungsstand zu trennen
+- automatische Vorschau außerhalb des GUI-Threads, veraltete Ergebnisse
+  verwerfen; Einzeländerungen etwa 150–250 ms entprellen
+- im Editor beim Ziehen laufend aktualisieren, nicht erst nach Loslassen
+
+StereoFine:
+- vorhandene Arbeitsauflösung: maximal 1600 px breit und 1000 px hoch
+- dies ist eine Breite/Höhe-Begrenzung, nicht AnaChromas lange-Seite-Regel
+- vorhandene Render-, Justage- und Größenlogik fachlich erhalten
+
+Schwarzrand für StereoFine und AnaChroma, einschließlich AnaChromas Editor:
+- Hintergrund reines Schwarz: #000000
+- rechteckige Vorschaufläche ohne abgerundetes Abschneiden der Bildkanten
+- Rand PRO SEITE = max(16 px, round(angezeigte_Bildbreite * 0.030) + 2)
+- Breite ist die tatsächliche dargestellte Bildbreite, nicht SBS-Quellbreite,
+  berechnete Vorschauobergrenze oder Breite des umgebenden Panels
+- derselbe Wert links, rechts, oben und unten
+- Beispiele: 400 px -> 16 px; 800 px -> 26 px; 1024 px -> 33 px;
+  1600 px -> 50 px pro Seite
+- Rand beim Einpassen vorher reservieren; vollständige Bildkanten bleiben
+  sichtbar. Zusätzlicher freier Raum durch das Seitenverhältnis ist möglich.
+- Dieser äußere Umraum macht vorhandene schwebende Scheinfenster sichtbar.
+  Er erzeugt keine Scheinfensterkorrektur und wird nicht in Exporte eingebrannt.
+
+Die Formel stammt aus dem gemeinsamen Standard von SplatTricia und ist in
+StereoFine implementiert. Daraus folgt keine Behauptung, dass SplatTricias
+aktuelle GUI selbst dieselbe interaktive Bildvorschau enthält.
+
+Freeda:
+- kein zusätzlicher Scheinfenster-Schwarzrand nach obiger Formel
+- die gestalteten Rahmen und Balken des Freeview-Bildes sind Bildinhalt;
+  sie sind nicht mit dem äußeren Schwarzrand anderer Vorschauen gleichzusetzen
+- im Ausschnittdialog verwenden Parallelblick, Kreuzblick und eine geplante
+  Anaglyphenkontrolle dieselben Ausschnittkoordinaten
+- die Anaglyphenkontrolle übernimmt exakt die bewährte Matrix,
+  sRGB-Linearisierung und Rotkorrektur von SplatTricia/StereoFine
+- diese Kontrollansicht ändert weder Ausschnitt noch gewähltes Exportformat
+- geplante Kontrollansichten erst nach Umsetzung als verfügbar dokumentieren
 
 
 DATEI- UND DIALOGLOGIK
@@ -181,27 +235,61 @@ Gespeicherte Pfade und Einstellungen bleiben erhalten, bis der Nutzer sie
 bewusst ändert.
 
 
-AUSGABEORDNER-LOGIK SPLATTRICIA
--------------------------------
-Es gibt zwei Ausgabearten:
+AUSGABEORDNER: GEMEINSAME ANZEIGE, PROJEKTSPEZIFISCHE ZIELE
+----------------------------------------------------------
+Gemeinsame Beschriftungen:
+- Abschnitt: Ausgabe
+- eigener Ordner: Eigener Ausgabeordner
+- Auswahlbutton: Auswählen
+- tatsächlich verwendetes Ziel: Ausgabeziel
+- gespeicherter eigener Pfad bleibt auch inaktiv sichtbar und wird ausgegraut
+- das aktive Ausgabeziel immer gesondert eindeutig anzeigen; ein gespeicherter
+  inaktiver Pfad ist nicht das aktive Ziel
+- nach Eingabe- oder Zielwechsel die Anzeige aktualisieren
+- lange Pfade lesbar umbrechen; Dateipfade bei Sprachwechsel unverändert lassen
 
-1. "Unterordner im Input-Ordner verwenden" aktiv
-   -> tatsächlicher Zielordner: <Input-Root>\output
-   -> eigener Ausgabeordner bleibt gespeichert und sichtbar, wird aber nicht
-      verwendet und erscheint visuell deaktiviert
+Ein neuer Input ändert weder gespeicherten eigenen Ordner noch Ausgabemodus.
+Ein eigener gewählter Ordner schaltet unmittelbar auf diesen Modus um.
+Die Standardoption erneut aktivieren behält den eigenen Ordner für später.
 
-2. Option deaktiviert
-   -> tatsächlicher Zielordner: gespeicherter eigener Ausgabeordner
+Projektbesonderheiten ausdrücklich erhalten:
+- SplatTricia und StereoFine: Unterordner im Input-Ordner verwenden;
+  Standardziel <Input-Root>/output, bei Einzeldatei deren Quellordner/output.
+  StereoFines bisherige Ergebnis-Unterordner sbs und anaglyph bleiben erhalten.
+- AnaChroma und Freeda: Unterordner im Programmordner verwenden;
+  Standardziel <Programmordner>/output oder bewusst gewähltes eigenes Ziel.
+  AnaChromas lokaler Benutzerordner-Fallback bei Schreibschutz bleibt erhalten.
+- AnaglyphBatch: bisherige output-Struktur und Konsolenbedienung erhalten;
+  diese Dokumentation führt keine GUI oder neue Batch-Ordnerlogik ein.
 
-Der berechnete <Input>\output-Pfad ersetzt niemals den sichtbaren gespeicherten
-eigenen Ausgabeordner im Feld.
+Ordnerverarbeitung AnaChroma/Freeda:
+- unter dem gewählten Ausgabe-Root den Quellordnernamen und dessen relative
+  Unterordner spiegeln, unabhängig von Standard- oder eigenem Ausgabeziel
+- Beispiel Urlaub/Tag1/bild.jpg ->
+  <Ziel>/Urlaub/Tag1/<Ausgabedateiname>
+- bei Einzeldateien keine künstliche Quellordnerwurzel ergänzen
+- Ausgabeziel zeigt bei Ordnerverarbeitung <Ziel>/<Quellordnername>
+- Ausgabeordner und temporäre Verzeichnisse von rekursiver Eingabesuche
+  ausschließen; erzeugte Dateien erweitern einen laufenden Auftrag nicht
 
-Die Wahl eines neuen eigenen Ausgabeordners schaltet direkt auf diesen
-Ausgabemodus um.
+Ergebnisnamen statt zusätzlicher Verfahrens-/Modusordner:
+- AnaChroma: <Stamm>_<Verfahrenssuffix>.jpg
+- Freeda: <Stamm>_freeda_web.jpg/png oder <Stamm>_freeda_print.jpg/png
+- Freeda erzeugt unter Standard- und eigenem Ziel keine zusätzlichen Ordner
+  web oder print; das Suffix unterscheidet die Ergebnisse
+- bereits vorhandene projektfremde Ordnerregeln dadurch nicht global ändern
+
+Freedas gespeicherte Ausschnitte:
+- dem jeweiligen konkreten Quellordner zuordnen, auch bei Unterordnern
+- vorhandenes lokales Ausschnitt-/Sidecar-Format beibehalten; eindeutig benennen
+- Originale nicht überschreiben und Ausschnittdaten nicht als neue Bilder
+  einsammeln; eine zentrale Ablage im Ausgabe-Root ist nicht vorgesehen
 
 
 DATEINAMEN / ÜBERSCHREIBEN
 --------------------------
+Die folgenden einfachen Dateinamensregeln gelten für SplatTricia; andere
+Programme behalten ihre validierte Kollisionsbehandlung.
 SplatTricia verwendet bewusst einfache, nachvollziehbare Dateinamen.
 Bestehende fertige Dateien mit gleichem Zielnamen werden ohne Rückfrage
 ersetzt.
@@ -214,8 +302,10 @@ kollidieren. Es werden keine versteckten Source-IDs oder Hashes in sichtbare
 Dateinamen eingebaut.
 
 
-TEMP / PLY-CACHE
-----------------
+TEMP / PLY-CACHE IN SPLATTRICIA
+------------------------------
+Diese PLY-Regeln gelten für SplatTricia, nicht pauschal für alle Werkzeuge.
+AnaglyphBatch behält output/tmp; andere Programme ihre geprüfte Temp-Logik.
 Alle entfernbaren Arbeits- und Cachedateien liegen unter _temp.
 Der gesamte _temp-Ordner darf gelöscht werden.
 
@@ -261,3 +351,110 @@ Nicht enthalten sind insbesondere:
 README-Dateien bleiben kompakt und erklären Grundidee, zentrale Funktionen,
 Voraussetzungen, Ausgabe, Offline-Prinzip, Modelltrennung und Source-Verfügbarkeit.
 Interne Detailregeln stehen in Entwicklungsnotizen wie dieser Datei.
+
+
+BESCHRIFTUNG, SPRACHE UND KOMPAKTE BEDIENUNG
+-------------------------------------------
+Kurze fachlich verständliche deutsche und englische Beschriftungen.
+Deutsch: Eingabe, Ausgabe, Anaglyph, Verfahren, Größe, Verarbeitung.
+Leerer Eingabezustand AnaChroma/Freeda: Keine Bilder gewählt.
+Keine sprachlich unpassenden Zustände wie "Kein Eingang gewählt".
+Englische Gegenstücke eindeutig und vollständig übersetzen.
+Eigennamen, Dateipfade und eigene Presetnamen unverändert erhalten.
+
+Buttons unterscheiden aktuelle Bildausgabe und Verarbeitung aller Bilder.
+Die Anzahl und Art der geladenen Eingaben müssen erkennbar sein.
+Die tatsächlichen Exportaktionen hängen weiterhin vom jeweiligen Werkzeug ab.
+
+AnaChroma:
+- Standardverfahrensauswahl vor dem sichtbaren Einstieg Eigenes Verfahren
+  anlegen…; Bearbeiten… für gespeicherte eigene Verfahren
+- kompakter Editor mit lesbaren Zahlenfeldern und vollständigen Buttontexten
+- eigene Vorschau als ausreichend großer, beim Vergrößern mitwachsender
+  Bereich; keine kleine Miniatur neben Name/Suffix
+- kein zusätzliches "Live-Vorschau"-Label über diesem Bereich
+- Helligkeits-/Kontrastregler mit Zahleneingabe; Reglergrenzen als Bedienbereich
+  beschreiben, nicht als unbelegte physikalische oder Bibliotheksgrenzen
+- weder JPEG-/Lanczos-Erklärungen unter Größe noch technische Rechtfertigungen
+  als ständig sichtbare GUI-Texte
+- eigene Presets und Einstellungen ausschließlich lokal speichern
+
+Mehrfachausgabe AnaChroma (vereinbartes Ziel, Umsetzung gesondert prüfen):
+- ein Verfahren für die Vorschau, unabhängig auswählbare Verfahren für Export
+- Standard: Ausgabeverfahren: Aktuelles Verfahren
+- kompakter Auswahlbutton öffnet Checkboxliste aus Standard- und eigenen
+  Verfahren; gewählte Anzahl eindeutig in der Hauptoberfläche anzeigen
+- Bild speichern und Alle verarbeiten berücksichtigen alle Ausgabeverfahren
+- Dateinamenssuffixe und Ordnerstruktur erhalten; Fortschritt zählt Ausgaben
+- geplante Mehrfachausgabe nicht als bereits vorhandene Funktion ausgeben
+
+Tastaturbedienung bewusst knapp und projektspezifisch:
+- vereinbarte Zielbelegung AnaChroma/Freeda: Links/Rechts für Bildnavigation
+- AnaChroma: Strg+Links/Rechts für vorheriges/nächstes Vorschauverfahren
+- Freeda nur im Ausschnittdialog: P für Parallelblick, X für Kreuzblick,
+  A für die Anaglyphenansicht, sobald diese vorhanden ist
+- Eingabefelder behalten normale Text-/Zahlenbedienung; ausgewählte Regler
+  bekommen das Mausrad, ohne gleichzeitig Bildwechsel oder Dialogscrollen
+- vorhandene StereoFine-Pfeiltasten zur Justage werden dadurch nicht geändert
+- keine weiteren Shortcuts ohne konkrete gemeinsame Entscheidung
+
+
+FREEDA: AUSGABEGESTALTUNG
+-------------------------
+Die GUI-Palette ist vom gestalteten Ausgabebild getrennt.
+Nachtgold-Standard: Rahmen #111111, Symbole II/X und Beschriftung #c6a95e.
+Andere ausdrücklich wählbare Bildgestaltungen bleiben zulässig.
+JPEG: Qualität 90, 4:4:4 ohne Chroma-Subsampling.
+PNG: RGBA; abgerundete äußere Ecken können transparent sein.
+
+Web-Breite ist die exakte Breite einer vollständigen Stereozeile einschließlich
+Außenrahmen und mittlerem Trenner.
+Die Rahmenstärke bezieht sich auf ein gerendertes Halbbild. Außenrahmen,
+mittlerer Trenner und horizontaler Trenner verwenden dieselbe Pixelstärke.
+Untertitel und II/X-Markierungen werden für beide Halbbilder getrennt, aber
+gleichartig erzeugt, damit sie beim Parallel-/Kreuzblick fusionieren.
+
+
+ORIGINAL-ASSETS UND QUALITÄT
+----------------------------
+Vom Nutzer gelieferte Hintergrund-/Startbilder, Icons und Sounds bytegetreu
+übernehmen. Ohne ausdrücklichen Auftrag weder verkleinern, beschneiden,
+neu komprimieren, umfärben noch eine Miniatur als Original ausgeben.
+AnaChromas geliefertes SBS-Original hat 7680 x 2160 px.
+Verkleinerte Berechnungskopien für Vorschau und Anzeige entstehen getrennt;
+das gebündelte Original bleibt in voller Auflösung und Qualität erhalten.
+Originalität anhand des tatsächlich gelieferten Originals prüfen, nicht
+anhand einer möglicherweise bereits verkleinerten Arbeitskopie.
+Für einen ausdrücklich notwendigen Konvertierungsschritt Format und
+Qualitätsverlust vorher benennen. Berechnung, Vorschau und Asset-Aufbewahrung
+nicht vermischen.
+
+Anaglyph-JPEG: Qualität 90, 4:4:4; AnaChroma optional 95 für Druck/Archiv.
+Lanczos bezeichnet die Skalierung; optimize=True die JPEG-Codierung.
+Original-Previews/Thumbnails und bereits angewendete EXIF-Orientation nicht
+wieder in die erzeugte Ausgabe kopieren.
+
+
+ÄNDERUNGEN UND PRÜFUNG
+----------------------
+Vor GUI-/Bedienänderungen diese Datei und die tatsächlichen Referenzquellen
+lesen. Eine vermeintliche Ähnlichkeit oder ein alter Screenshot ersetzt den
+Vergleich von Werten, Formeln, Beschriftungen und Verhalten nicht.
+Bei einer gemeinsamen Änderung alle fünf Standardkopien mit derselben
+Version aktualisieren; echte Projektbesonderheiten hier dokumentieren.
+Dokumentation allein ist keine Änderung des Laufzeitverhaltens.
+
+Mindestens prüfen:
+- deutsche und englische Beschriftungen, vollständige Buttontexte
+- aktive/inaktive/Busy-Zustände mit den tatsächlichen Widgetfarben
+- kleine und große Fenster sowie Betriebssystem-/DPI-Skalierung
+- Vorschaugröße, gleichartige Bildfläche und außen liegenden Schwarzrand
+- aktuelles Ausgabeziel bei Einzeldatei, Ordner und Zielwechsel
+- rekursive Ausgabe, gleichnamige Dateien und Ausschluss erzeugter Verzeichnisse
+- Original-Assets anhand Abmessungen und Datei-Hash
+- vorhandene Funktionalität und projektspezifische Mathematik erhalten
+
+README beschreibt verfügbare Nutzerfunktionen knapp. Interne Gestaltungsregeln,
+Herkunftsnotizen eigener wiederverwendeter Dateien und noch offene technische
+Prüfungen gehören in Entwicklungsunterlagen. Erforderliche Fremdlizenzen und
+Copyright-Hinweise bleiben erhalten.
