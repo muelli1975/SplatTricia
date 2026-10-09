@@ -1,7 +1,7 @@
 STEREO-TOOLS
 GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
 ==========================================
-Version 1.1 | Stand: 9. Oktober 2026
+Version 1.2 | Stand: 9. Oktober 2026
 
 Zweck
 -----
@@ -185,7 +185,7 @@ StereoFine:
 - dies ist eine Breite/Höhe-Begrenzung, nicht AnaChromas lange-Seite-Regel
 - vorhandene Render-, Justage- und Größenlogik fachlich erhalten
 
-Schwarzrand für StereoFine und AnaChroma, einschließlich AnaChromas Editor:
+Schwarzrand für StereoFine und AnaChromas Hauptvorschau (auch Editorentwürfe):
 - Hintergrund reines Schwarz: #000000
 - rechteckige Vorschaufläche ohne abgerundetes Abschneiden der Bildkanten
 - Rand PRO SEITE = max(16 px, round(angezeigte_Bildbreite * 0.030) + 2)
@@ -207,12 +207,11 @@ Freeda:
 - kein zusätzlicher Scheinfenster-Schwarzrand nach obiger Formel
 - die gestalteten Rahmen und Balken des Freeview-Bildes sind Bildinhalt;
   sie sind nicht mit dem äußeren Schwarzrand anderer Vorschauen gleichzusetzen
-- im Ausschnittdialog verwenden Parallelblick, Kreuzblick und eine geplante
+- im Ausschnittdialog verwenden Parallelblick, Kreuzblick und die
   Anaglyphenkontrolle dieselben Ausschnittkoordinaten
 - die Anaglyphenkontrolle übernimmt exakt die bewährte Matrix,
   sRGB-Linearisierung und Rotkorrektur von SplatTricia/StereoFine
 - diese Kontrollansicht ändert weder Ausschnitt noch gewähltes Exportformat
-- geplante Kontrollansichten erst nach Umsetzung als verfügbar dokumentieren
 
 
 DATEI- UND DIALOGLOGIK
@@ -370,29 +369,29 @@ AnaChroma:
 - Standardverfahrensauswahl vor dem sichtbaren Einstieg Eigenes Verfahren
   anlegen…; Bearbeiten… für gespeicherte eigene Verfahren
 - kompakter Editor mit lesbaren Zahlenfeldern und vollständigen Buttontexten
-- eigene Vorschau als ausreichend großer, beim Vergrößern mitwachsender
-  Bereich; keine kleine Miniatur neben Name/Suffix
-- kein zusätzliches "Live-Vorschau"-Label über diesem Bereich
-- Helligkeits-/Kontrastregler mit Zahleneingabe; Reglergrenzen als Bedienbereich
-  beschreiben, nicht als unbelegte physikalische oder Bibliotheksgrenzen
+- modeless Editor nur mit Bedienelementen; Entwürfe in der großen Hauptvorschau
+- zwei 3x3-Matrizen, optional lineares Licht und RGB-Kanalpotenzen
+- keine Helligkeits-/Kontrastanpassung und keine zusätzlichen iaian7-Regler
+- vollständig darstellbare Matrixvorlagen; Spezialverfahren nur als Standard
+- Matrixregler -2 bis +2, Schritt 0,001; RGB-Potenzen 0,625 bis 1,25
+- präzise Zahleneingabe erweitert Reglerbereiche; Werte nicht pauschal runden
 - weder JPEG-/Lanczos-Erklärungen unter Größe noch technische Rechtfertigungen
   als ständig sichtbare GUI-Texte
 - eigene Presets und Einstellungen ausschließlich lokal speichern
 
-Mehrfachausgabe AnaChroma (vereinbartes Ziel, Umsetzung gesondert prüfen):
+Mehrfachausgabe AnaChroma:
 - ein Verfahren für die Vorschau, unabhängig auswählbare Verfahren für Export
 - Standard: Ausgabeverfahren: Aktuelles Verfahren
 - kompakter Auswahlbutton öffnet Checkboxliste aus Standard- und eigenen
   Verfahren; gewählte Anzahl eindeutig in der Hauptoberfläche anzeigen
 - Bild speichern und Alle verarbeiten berücksichtigen alle Ausgabeverfahren
 - Dateinamenssuffixe und Ordnerstruktur erhalten; Fortschritt zählt Ausgaben
-- geplante Mehrfachausgabe nicht als bereits vorhandene Funktion ausgeben
 
 Tastaturbedienung bewusst knapp und projektspezifisch:
-- vereinbarte Zielbelegung AnaChroma/Freeda: Links/Rechts für Bildnavigation
+- AnaChroma/Freeda: Links/Rechts und Bild auf/Bild ab für Bildnavigation
 - AnaChroma: Strg+Links/Rechts für vorheriges/nächstes Vorschauverfahren
 - Freeda nur im Ausschnittdialog: P für Parallelblick, X für Kreuzblick,
-  A für die Anaglyphenansicht, sobald diese vorhanden ist
+  A für die Anaglyphenansicht
 - Eingabefelder behalten normale Text-/Zahlenbedienung; ausgewählte Regler
   bekommen das Mausrad, ohne gleichzeitig Bildwechsel oder Dialogscrollen
 - vorhandene StereoFine-Pfeiltasten zur Justage werden dadurch nicht geändert
