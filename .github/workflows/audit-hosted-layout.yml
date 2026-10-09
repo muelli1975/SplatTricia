@@ -1,0 +1,27 @@
+name: Inspect hosted portable archive
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-hosted-layout.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check hosted archive layout without rebuilding
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, urllib.request, zipfile
+          url = "https://traumnarben.de/download/SplatTricia_1.0.zip"
+          with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=60) as response:
+              print("Hosted archive size:", response.headers.get("Content-Length"), flush=True)
+          path = pathlib.Path("SplatTricia_1.0.zip")
+          urllib.request.urlretrieve(url, path)
+          with path.open("rb") as stream:
+              sha = hashlib.file_digest(stream,"sha256").hexdigest()
+          with zipfile.ZipFile(path) as archive:
+              names=archive.namelist()
+          print(json.dumps({"sha256":sha,"size":path.stat().st_size,"roots":sorted({n.split("/")[0] for n in names}),"entries":len(names)}),flush=True)
+          PY

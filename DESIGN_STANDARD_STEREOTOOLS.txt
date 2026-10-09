@@ -1,7 +1,7 @@
 STEREO-TOOLS
 GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
 ==========================================
-Version 1.3 | Stand: 9. Oktober 2026
+Version 1.4 | Stand: 9. Oktober 2026
 
 Zweck
 -----
@@ -217,6 +217,11 @@ Freeda:
 DATEI- UND DIALOGLOGIK
 ----------------------
 Input und Output besitzen getrennte Dialoggedächtnisse.
+AnaChroma/Freeda merken Sprache, Dialogordner, eigenen Ausgabeordner und
+Ausgabemodus auch nach Neustart. Bilder werden nicht automatisch neu geladen.
+Bearbeitungswerte starten mit Standards: 2048 px lange Seite und
+Unterordneroption aus. Freedas eigene Presets werden ausdrücklich ausgewählt;
+AnaChromas eigene Verfahren bleiben erhalten, ohne sie automatisch auszuwählen.
 
 Inputdialog:
 - beginnt beim zuletzt verwendeten Input-Quellordner
