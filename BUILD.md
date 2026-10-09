@@ -76,3 +76,5 @@ models, user settings, logs, output images or local third-party source trees.
 
 The source snapshot is therefore meant as a reproducible reference for the
 corresponding release, not as a complete backup of the developer workstation.
+
+The archive contains a single `SplatTricia` application folder. Application folders and executable names remain independent of version and architecture; those belong in the download archive name.

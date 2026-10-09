@@ -111,7 +111,7 @@ if errorlevel 1 exit /b 1
 echo [7/7] ZIP erstellen ...
 if exist "!ZIP_PATH!" del /q "!ZIP_PATH!"
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "Compress-Archive -Path '!DIST_DIR!\*' -DestinationPath '!ZIP_PATH!' -CompressionLevel Optimal"
+  "Compress-Archive -Path '!DIST_DIR!' -DestinationPath '!ZIP_PATH!' -CompressionLevel Optimal"
 if errorlevel 1 exit /b 1
 
 echo.
