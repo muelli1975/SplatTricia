@@ -1,7 +1,7 @@
 STEREO-TOOLS
 GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
 ==========================================
-Version 1.4 | Stand: 9. Oktober 2026
+Version 1.5 | Stand: 9. Oktober 2026
 
 Zweck
 -----
@@ -211,6 +211,10 @@ Freeda:
   Anaglyphenkontrolle dieselben Ausschnittkoordinaten
 - die Anaglyphenkontrolle übernimmt exakt die bewährte Matrix,
   sRGB-Linearisierung und Rotkorrektur von SplatTricia/StereoFine
+- Anaglyphenkontrolle zeigt den gewählten Rahmen und die Bildkontur ohne
+  Blicksymbole; vorhandene Web-/Druck-Renderer und deren Geometrie verwenden
+- Überschrift im Ausschnittdialog: Ansicht zur Ausschnittwahl; Hinweis:
+  Die Ansicht beeinflusst nur die Vorschau. Beide Texte übersetzen.
 - diese Kontrollansicht ändert weder Ausschnitt noch gewähltes Exportformat
 
 
@@ -383,7 +387,7 @@ AnaChroma:
 - zwei 3x3-Matrizen, optional lineares Licht und RGB-Kanalpotenzen
 - keine Helligkeits-/Kontrastanpassung und keine zusätzlichen iaian7-Regler
 - vollständig darstellbare Matrixvorlagen; Spezialverfahren nur als Standard
-- Matrixregler -2 bis +2, Schritt 0,001; RGB-Potenzen 0,625 bis 1,25
+- Matrixregler -0,5 bis +1,5, Schritt 0,001; RGB-Potenzen 0,625 bis 1,25
 - präzise Zahleneingabe erweitert Reglerbereiche; Werte nicht pauschal runden
 - weder JPEG-/Lanczos-Erklärungen unter Größe noch technische Rechtfertigungen
   als ständig sichtbare GUI-Texte
