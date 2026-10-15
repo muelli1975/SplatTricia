@@ -8,7 +8,7 @@ for a stable release rather than repeating every development experiment.
 - `verify_release.py` passes.
 - `requirements-lock.txt` is regenerated from the release environment.
 - The portable build is produced by `build_portable.bat`.
-- The final ZIP is named `SplatTricia_1.0.zip`.
+- The final ZIP is named `SplatTricia_1.1.zip`.
 - The ZIP contains the `source` directory for the same source state.
 - `source\LICENSE.txt` is present and contains the SplatTricia MIT License.
 - `source\requirements-lock.txt` is present.
@@ -69,3 +69,16 @@ Test at least:
   behaviour, model separation and source availability.
 - SHARP checkpoint is not distributed.
 - Third-party licenses remain separate from the SplatTricia MIT License.
+
+## Optional exports in 1.1
+
+- The portable Windows GUI/encoder self-test passes in German and English.
+- Depth PNG is 16-bit, white near/black far, and follows the central camera.
+- Changing stereo controls and curtains leaves the depth map identical.
+- On an NVIDIA system, assess depth edges, uncovered regions and the motion of
+  MP4/GIF/PNG output from real landscape and portrait inputs.
+- Check 30/60 fps MP4, GIF timing/looping, and PNG sequence numbering.
+- Check 1080/2160 maximum video height without enlargement of smaller inputs.
+- Compare original SBS/anaglyph output with optional exports on and off.
+- Cancellation preserves a previous complete animation or frame sequence.
+- All three uploaded ZIPs pass the published SHA-256 checks after downloading.

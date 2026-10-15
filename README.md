@@ -36,7 +36,7 @@ Automatic 2D-to-3D conversion remains a geometric estimate. For projection or ot
 ## Optional exports in 1.1
 
 - **Save depth map as PNG:** 16-bit relative inverse depth, white near/black far, from the original central view. Saved under `depth_maps`, matching the processed single-image dimensions. Stereo controls and curtains do not alter it.
-- **Save wiggle animation:** saved under `wiggle`. **Settings…** opens the themed editor for format, maximum image size, frame rate and cycle duration. Values are remembered separately per format.
+- **Save wiggle animation:** saved under `wiggle`. **Settings…** opens the themed editor for format, maximum image size, frame rate and cycle duration. Image size and frame rate are remembered separately per format; cycle duration is shared.
 - MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum 1080/2160 pixels high, five cycles.
 - GIF: 10/20/25 fps, maximum 800 pixels on the long edge by default, endless loop.
 - PNG sequence: 30/60 fps, maximum 1080/2160 pixels high, one numbered cycle per source image.

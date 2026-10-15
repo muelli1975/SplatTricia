@@ -53,7 +53,7 @@ def check_version() -> None:
         fail("Version in __init__.py ist nicht 1.1.")
     for rel in ["README_DE.txt", "README_EN.txt", "BUILD.md", "RELEASE_CHECKLIST.md"]:
         if "1.1" not in (ROOT / rel).read_text(encoding="utf-8"):
-            fail(f"Versionsangabe 1.0 fehlt in {rel}.")
+            fail(f"Versionsangabe 1.1 fehlt in {rel}.")
 
 
 def check_metadata_no_console() -> None:

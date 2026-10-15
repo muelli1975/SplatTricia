@@ -64,7 +64,7 @@ The script:
 6. generates the aggregated third-party `LICENSES.txt`;
 7. creates the `source` snapshot from an explicit allow-list;
 8. runs release verification;
-9. creates `SplatTricia_1.0.zip`.
+9. creates `SplatTricia_1.1.zip`.
 
 ## Source snapshot
 
