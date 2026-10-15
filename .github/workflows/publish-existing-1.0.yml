@@ -1,0 +1,83 @@
+name: Publish existing portable 1.0 on GitHub
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-existing-1.0.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: publish-existing-splattricia-1.0
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repackage the verified existing Windows release
+        run: python -u scripts/package_existing_release.py
+      - name: Upload and verify every release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python -u - <<'PY'
+          import hashlib, json, os, pathlib, subprocess, tempfile
+          root = pathlib.Path('publish')
+          manifest = json.loads((root / 'SplatTricia_1.0_manifest.json').read_text())
+          assets = list(manifest['packages'])
+          for name in ['SplatTricia_1.0_manifest.json', 'SplatTricia_1.0_SHA256SUMS.txt']:
+              path = root / name
+              with path.open('rb') as stream:
+                  digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+              assets.append({'name':name, 'size':path.stat().st_size, 'sha256':digest})
+          def release():
+              return json.loads(subprocess.check_output(['gh', 'api', f"repos/{os.environ['GH_REPO']}/releases/tags/v1.0"]))
+          current = release()
+          existing = {asset['name']:asset for asset in current['assets']}
+          for asset in assets:
+              previous = existing.get(asset['name'])
+              if previous is not None:
+                  # Reruns are safe: never overwrite a different published asset.
+                  if previous.get('digest') != 'sha256:' + asset['sha256'] or previous['size'] != asset['size']:
+                      raise RuntimeError(f"Existing asset differs; refusing to replace {asset['name']}")
+              else:
+                  subprocess.run(['gh','release','upload','v1.0',str(root/asset['name'])],check=True)
+                  print('Uploaded:',asset['name'],flush=True)
+          remote = {asset['name']:asset for asset in release()['assets']}
+          for asset in assets:
+              published = remote[asset['name']]
+              if published['size'] != asset['size']:
+                  raise RuntimeError('Published asset size differs')
+              if published.get('digest') not in (None, 'sha256:' + asset['sha256']):
+                  raise RuntimeError('Published asset checksum differs')
+              with tempfile.TemporaryDirectory() as directory:
+                  subprocess.run(['gh','release','download','v1.0','--pattern',asset['name'],'--dir',directory],check=True)
+                  with (pathlib.Path(directory)/asset['name']).open('rb') as stream:
+                      digest = hashlib.file_digest(stream,'sha256').hexdigest()
+                  if digest != asset['sha256']:
+                      raise RuntimeError('Downloaded release asset differs')
+              print('Verified download:',asset['name'],flush=True)
+          notes = '''SplatTricia 1.0 converts individual 2D images or complete image folders to stereo 3D locally, using Apple SHARP.
+
+          ## Portable Windows download
+
+          Download `SplatTricia_1.0.zip` and **all** `SplatTricia_1.0_Runtime_*.zip` files attached below. Extract **every ZIP into the same destination directory**, merging their shared `SplatTricia` folder. Do not extract them into separate folders named after each archive.
+
+          All runtime libraries are included. No separate Python installation, CUDA toolkit or build tools are required. Windows 10/11 and a compatible NVIDIA GPU with a current driver are required.
+
+          The SHARP checkpoint is **not included in any package**. Obtain it separately from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp), read and accept the model terms, and place `sharp_2572gikvuh.pt` in `SplatTricia/models`. Then start `SplatTricia.exe`. Processing works offline after setup.
+
+          ## Packaging update
+
+          These archives contain the existing 1.0 application and runtime files, unchanged. Only the packaging has changed to make the complete portable distribution available directly on GitHub. A bilingual `INSTALLATION.txt` has been added. The manifest records the original archive checksum and a SHA-256 checksum for every unchanged file; `SplatTricia_1.0_SHA256SUMS.txt` contains checksums for all download packages.
+
+          SplatTricia source code and original documentation created by Christoph Müller are licensed under the MIT License. Apple SHARP and other third-party components retain their respective licenses.
+          '''
+          notes_path = pathlib.Path('release-notes.txt')
+          notes_path.write_text(notes,encoding='utf-8')
+          subprocess.run(['gh','release','edit','v1.0','--notes-file',str(notes_path)],check=True)
+          print('All release downloads verified; release instructions updated.',flush=True)
+          PY
