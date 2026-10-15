@@ -13,7 +13,10 @@ from sharp.utils.gsplat import GSplatRenderer
 from .anaglyph import make_anaglyph
 from .floating_window import apply_floating_window
 from .output_writer import save_anaglyph_jpeg, save_sbs_jpeg
-from .stereo_geometry import create_stereo_setup
+from .stereo_geometry import create_stereo_setup, make_intrinsics
+from .export_options import WiggleOptions
+from .depth_export import save_depth_png
+from .wiggle_export import export_wiggle, check_cancelled
 
 
 RenderProgressCallback = Callable[[str, float], None]
@@ -63,7 +66,15 @@ def render_ply_to_outputs(
     jpeg_quality_sbs: int,
     jpeg_quality_anaglyph: int,
     progress_callback: RenderProgressCallback | None = None,
+    depth_path: Path | None = None,
+    wiggle_path: Path | None = None,
+    wiggle_options: WiggleOptions = WiggleOptions(),
+    temp_root: Path | None = None,
+    cancel_callback: Callable[[], bool] | None = None,
 ) -> RenderMetrics:
+    extra_progress = progress_callback
+    if depth_path is not None or wiggle_path is not None:
+        progress_callback = lambda step, fraction: _notify(extra_progress, step, fraction * 0.6)
     _notify(progress_callback, "loading_ply", 0.05)
     gaussians_cpu, metadata = load_ply(ply_path)
 
@@ -142,6 +153,36 @@ def render_ply_to_outputs(
 
         _notify(progress_callback, "save_anaglyph", 0.90)
         save_anaglyph_jpeg(anaglyph, anaglyph_path, jpeg_quality_anaglyph)
+
+        # Optional exports do not alter any existing stereo geometry or masks.
+        if depth_path is not None:
+            check_cancelled(cancel_callback)
+            _notify(extra_progress, "depth_map", 0.58)
+            with torch.inference_mode():
+                middle = renderer(
+                    gaussians,
+                    extrinsics=torch.eye(4, device=device)[None],
+                    intrinsics=make_intrinsics(width, height, focal_length_px, 0.0, device)[None],
+                    image_width=width, image_height=height,
+                )
+            save_depth_png(middle.depth[0, 0].cpu().numpy(), middle.alpha[0, 0].cpu().numpy(), depth_path)
+            del middle
+            _notify(extra_progress, "depth_map", 0.64)
+
+        if wiggle_path is not None:
+            def render_wiggle_view(weight: float) -> np.ndarray:
+                # Both cameras are parallel. Interpolate translation and
+                # principal-point shift together to retain the stationary plane.
+                extrinsics = torch.lerp(setup.left_extrinsics, setup.right_extrinsics, weight)
+                intrinsics = torch.lerp(setup.left_intrinsics, setup.right_intrinsics, weight)
+                with torch.inference_mode():
+                    view = renderer(gaussians, extrinsics=extrinsics[None], intrinsics=intrinsics[None],
+                                    image_width=width, image_height=height)
+                return _tensor_to_rgb8(view.color[0])
+            export_wiggle(render_wiggle_view, (width, height), wiggle_options, wiggle_path,
+                          temp_root if temp_root is not None else ply_path.parent,
+                          progress=lambda fraction: _notify(extra_progress, "wiggle", 0.65 + 0.34 * fraction),
+                          cancel=cancel_callback)
 
         final = setup.final_measurement
         del renderer, left_rgb, right_rgb, anaglyph

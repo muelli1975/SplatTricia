@@ -1,4 +1,4 @@
-SplatTricia 1.0
+SplatTricia 1.1
 =================
 
 SplatTricia ist ein lokales Windows-Werkzeug zur automatischen Konvertierung
@@ -84,3 +84,16 @@ Fehlerprotokoll
 ---------------
 Bei technischen Fehlern schreibt SplatTricia Details in splattricia_error.log
 neben die EXE.
+
+Zusätzliche Ausgaben in 1.1
+
+- Tiefenkarte als PNG speichern: relative inverse Tiefe mit 16 Bit, hell nah/dunkel fern, aus der ursprünglichen mittigen Perspektive. Ablage unter depth_maps, in den Pixelmaßen des verarbeiteten Einzelbildes. Stereoregler und Vorhänge verändern die Karte nicht.
+- Wiggle-Animation speichern: Ablage unter wiggle. Einstellungen… öffnet den Dialog in Programmfarben für Format, maximale Bildgröße, Bildrate und Zyklusdauer. Die Werte werden je Format gespeichert.
+- MP4: H.264 CRF18/slow, 8 Bit und 4:2:0, 30/60 fps, maximal 1080/2160 Pixel Bildhöhe, fünf Zyklen.
+- GIF: 10/20/25 fps, standardmäßig maximal 800 Pixel lange Seite, Endlosschleife.
+- PNG-Bildfolge: 30/60 fps, maximal 1080/2160 Pixel Bildhöhe, ein nummerierter Zyklus je Ausgangsbild.
+
+Ein Zyklus dauert standardmäßig zwei Sekunden. Kleinere Bilder werden nicht vergrößert. Wiggle verwendet die vorhandene Deviation/Scheinfensterlage und den PLY-Cache; Floating-Window-Vorhänge werden nicht übernommen. Beide zusätzlichen Ausgaben sind zunächst ausgeschaltet.
+
+
+Einrichtung: Alle drei 1.1-ZIPs in denselben Ordner entpacken. Siehe INSTALLATION.txt.

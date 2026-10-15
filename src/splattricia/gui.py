@@ -17,6 +17,8 @@ except ModuleNotFoundError as exc:
 from . import __version__
 from .cache import clear_temporary_files
 from .config import ProcessingConfig
+from .export_options import WiggleOptions
+from .wiggle_dialog import WiggleDialog
 from .i18n import Translator
 from .models import ProgressEvent
 from .settings import load_settings, save_settings
@@ -53,8 +55,8 @@ class SplatTriciaApp(ctk.CTk):
 
         ctk.set_appearance_mode("dark")
         self.title(f"{APP_NAME} – {__version__}")
-        self.geometry("1280x800")
-        self.minsize(1100, 700)
+        self.geometry("1280x880")
+        self.minsize(1100, 800)
         self.configure(fg_color=BG_MAIN)
         icon_path = self.app_dir / "assets" / "splattricia.ico"
         if icon_path.is_file():
@@ -72,6 +74,9 @@ class SplatTriciaApp(ctk.CTk):
         self.use_ply_cache = ctk.BooleanVar(value=True)
         self.append_settings_to_filename = ctk.BooleanVar(value=False)
         self.gray_anaglyph = ctk.BooleanVar(value=False)
+        self.save_depth_map = ctk.BooleanVar(value=bool(self.settings.get("save_depth_map", False)))
+        self.save_wiggle = ctk.BooleanVar(value=bool(self.settings.get("save_wiggle", False)))
+        self.wiggle_options = WiggleOptions.from_settings(self.settings.get("wiggle", {}))
         self.deviation = ctk.DoubleVar(value=20)
         self.window_position = ctk.DoubleVar(value=100)
         self.window_backshift = ctk.DoubleVar(value=0)
@@ -234,6 +239,8 @@ class SplatTriciaApp(ctk.CTk):
             self.gray_anaglyph_check,
             self.use_ply_cache_check,
             self.append_settings_check,
+            self.save_depth_check,
+            self.save_wiggle_check,
         ):
             self._set_checkbox_enabled(checkbox, not running)
 
@@ -252,6 +259,7 @@ class SplatTriciaApp(ctk.CTk):
         self._update_output_state()
         self._update_backshift_state()
         self._update_floating_window_state()
+        self._update_wiggle_state()
 
     def _build_header(self) -> None:
         header = ctk.CTkFrame(self, corner_radius=0, fg_color=BG_SOFT)
@@ -392,8 +400,36 @@ class SplatTriciaApp(ctk.CTk):
             variable=self.append_settings_to_filename,
         )
         self.append_settings_check.grid(
-            row=14, column=0, sticky="w", padx=20, pady=(0, 20)
+            row=14, column=0, sticky="w", padx=20, pady=(0, 12)
         )
+        self.save_depth_check = ctk.CTkCheckBox(parent, text=self.tr("option.save_depth_map"),
+                                               variable=self.save_depth_map, command=self._save_paths)
+        self.save_depth_check.grid(row=15, column=0, sticky="w", padx=20, pady=(0, 12))
+        wiggle_row = ctk.CTkFrame(parent, fg_color="transparent")
+        wiggle_row.grid(row=16, column=0, sticky="ew", padx=20, pady=(0, 20))
+        wiggle_row.grid_columnconfigure(0, weight=1)
+        self.save_wiggle_check = ctk.CTkCheckBox(wiggle_row, text=self.tr("option.save_wiggle"),
+                                                variable=self.save_wiggle, command=self._on_wiggle_changed,
+                                                width=190)
+        self.save_wiggle_check.grid(row=0, column=0, sticky="w", padx=(0, 8))
+        self.wiggle_button = ctk.CTkButton(wiggle_row, text=self.tr("wiggle.settings"), width=100,
+                                           command=self._open_wiggle_dialog)
+        self.wiggle_button.grid(row=0, column=1, sticky="e")
+
+    def _update_wiggle_state(self) -> None:
+        self.wiggle_button.configure(state="normal" if self.save_wiggle.get() and not self.is_running else "disabled")
+
+    def _on_wiggle_changed(self) -> None:
+        self._update_wiggle_state()
+        self._save_paths()
+
+    def _open_wiggle_dialog(self) -> None:
+        if self.is_running or not self.save_wiggle.get():
+            return
+        def apply(options):
+            self.wiggle_options = options
+            self._save_paths()
+        WiggleDialog(self, self.wiggle_options, apply)
 
     def _build_stereo_card(self, parent) -> None:
         self._section_title(parent, "section.stereo", 0)
@@ -621,6 +657,9 @@ class SplatTriciaApp(ctk.CTk):
                 "last_input_folder": self.input_folder.get(),
                 "last_output_folder": self.output_folder.get(),
                 "use_input_subfolder": bool(self.use_input_subfolder.get()),
+                "save_depth_map": bool(self.save_depth_map.get()),
+                "save_wiggle": bool(self.save_wiggle.get()),
+                "wiggle": self.wiggle_options.to_settings(),
             }
         )
         try:
@@ -804,6 +843,11 @@ class SplatTriciaApp(ctk.CTk):
         self.gray_anaglyph.set(False)
         self.append_settings_to_filename.set(False)
         self.use_ply_cache.set(True)
+        self.save_depth_map.set(False)
+        self.save_wiggle.set(False)
+        self.wiggle_options = WiggleOptions()
+        self._update_wiggle_state()
+        self._save_paths()
         self._update_backshift_state()
         self._update_floating_window_state()
         self._refresh_dynamic_labels()
@@ -864,6 +908,9 @@ class SplatTriciaApp(ctk.CTk):
             float_bottom_permille=round(float(self.float_bottom.get())),
             gray_anaglyph=bool(self.gray_anaglyph.get()),
             append_settings_to_filename=bool(self.append_settings_to_filename.get()),
+            save_depth_map=bool(self.save_depth_map.get()),
+            save_wiggle=bool(self.save_wiggle.get()),
+            wiggle=self.wiggle_options,
         )
         self.cancel_event.clear()
         self.error_log_lines = []
@@ -1108,6 +1155,10 @@ def main(app_dir: Path) -> int:
 
 
 def run_gui() -> int:
+    if "--self-test" in sys.argv:
+        from .smoke_test import run
+        position = sys.argv.index("--self-test")
+        raise SystemExit(run(Path(sys.argv[position + 1])))
     if getattr(sys, "frozen", False):
         app_dir = Path(sys.executable).resolve().parent
     else:

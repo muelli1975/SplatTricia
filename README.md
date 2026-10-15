@@ -1,4 +1,6 @@
-# SplatTricia 1.0
+# SplatTricia 1.1 — development preview
+
+This branch contains the 1.1 test version. The [stable 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) remains available.
 
 [Deutsch](README_DE.md)
 
@@ -31,6 +33,16 @@ The SHARP checkpoint is **not part of SplatTricia** and is not provided in this 
 
 Automatic 2D-to-3D conversion remains a geometric estimate. For projection or other demanding uses, deviation, window placement and image edges should be checked visually.
 
+## Optional exports in 1.1
+
+- **Save depth map as PNG:** 16-bit relative inverse depth, white near/black far, from the original central view. Saved under `depth_maps`, matching the processed single-image dimensions. Stereo controls and curtains do not alter it.
+- **Save wiggle animation:** saved under `wiggle`. **Settings…** opens the themed editor for format, maximum image size, frame rate and cycle duration. Values are remembered separately per format.
+- MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum 1080/2160 pixels high, five cycles.
+- GIF: 10/20/25 fps, maximum 800 pixels on the long edge by default, endless loop.
+- PNG sequence: 30/60 fps, maximum 1080/2160 pixels high, one numbered cycle per source image.
+
+The default cycle takes two seconds. Images are never enlarged. Wiggle reuses the existing deviation/window placement and cached PLY; floating-window curtains are not applied. The depth and animation options are off by default.
+
 ## Output
 
 The selected output location contains:
@@ -55,11 +67,11 @@ SplatTricia source code and original documentation created by Christoph Müller 
 
 ## Windows download and setup
 
-Download all three ZIP files from the [SplatTricia 1.0 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0):
+Download all three ZIP files from the [SplatTricia 1.1 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1-preview1):
 
-- `SplatTricia_1.0.zip` — application, tools, documentation and licenses
-- `SplatTricia_1.0_Runtime_1.zip` — runtime libraries, part 1
-- `SplatTricia_1.0_Runtime_2.zip` — runtime libraries, part 2
+- `SplatTricia_1.1.zip` — application, tools, documentation and licenses
+- `SplatTricia_1.1_Runtime_1.zip` — runtime libraries, part 1
+- `SplatTricia_1.1_Runtime_2.zip` — runtime libraries, part 2
 
 1. Extract **every ZIP into the same destination directory**, merging their shared `SplatTricia` subfolder. Do not extract them into separate folders named after each archive.
 2. Obtain the SHARP checkpoint yourself from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp). Read and accept Apple's model terms before downloading.
@@ -68,4 +80,4 @@ Download all three ZIP files from the [SplatTricia 1.0 release](https://github.c
 
 All runtime libraries are included. No separate Python installation, CUDA toolkit or build tools are required. Processing works offline after setup.
 
-The application and runtime files are unchanged from the original 1.0 distribution. A bilingual `INSTALLATION.txt` is included. `SplatTricia_1.0_SHA256SUMS.txt` provides download checksums; the accompanying manifest records the unchanged original files.
+The native runtime libraries are reused from 1.0. This preview is awaiting visual assessment on an NVIDIA GPU. `SplatTricia_1.1_SHA256SUMS.txt` provides checksums for all three ZIPs.

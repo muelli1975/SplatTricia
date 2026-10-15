@@ -49,16 +49,16 @@ def check_locales() -> None:
 
 def check_version() -> None:
     init_text = (SRC / "splattricia" / "__init__.py").read_text(encoding="utf-8")
-    if '__version__ = "1.0"' not in init_text:
-        fail("Version in __init__.py ist nicht 1.0.")
+    if '__version__ = "1.1"' not in init_text:
+        fail("Version in __init__.py ist nicht 1.1.")
     for rel in ["README_DE.txt", "README_EN.txt", "BUILD.md", "RELEASE_CHECKLIST.md"]:
-        if "1.0" not in (ROOT / rel).read_text(encoding="utf-8"):
+        if "1.1" not in (ROOT / rel).read_text(encoding="utf-8"):
             fail(f"Versionsangabe 1.0 fehlt in {rel}.")
 
 
 def check_metadata_no_console() -> None:
     text = (SRC / "splattricia" / "metadata.py").read_text(encoding="utf-8")
-    required = ["CREATE_NO_WINDOW", "creationflags=creationflags"]
+    required = ["CREATE_NO_WINDOW", "creationflags="]
     for marker in required:
         if marker not in text:
             fail(f"Fensterloser ExifTool-Aufruf fehlt: {marker}")
@@ -67,7 +67,7 @@ def check_metadata_no_console() -> None:
 def check_release_naming() -> None:
     text = (ROOT / "build_portable.bat").read_text(encoding="utf-8")
     required = [
-        'set "VERSION=1.0"',
+        'set "VERSION=1.1"',
         'set "ZIP_PATH=%CD%\\dist\\%APP_NAME%_%VERSION%.zip"',
     ]
     for marker in required:

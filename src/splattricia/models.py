@@ -18,6 +18,8 @@ class ProcessingItem:
     cache_identity: CacheIdentity
     cache_valid: bool
     status: str = "offen"
+    depth_path: Path | None = None
+    wiggle_path: Path | None = None
 
 
 @dataclass(frozen=True)

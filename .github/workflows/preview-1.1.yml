@@ -1,0 +1,83 @@
+name: SplatTricia 1.1 test package
+on:
+  push:
+    branches: ['development/1.1']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: splattricia-preview-1.1
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download verified existing runtime packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v1.0 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
+      - name: Assemble the test application without changing native dependencies
+        run: python scripts/assemble_preview.py assemble
+      - name: Test the actual portable EXE
+        run: |
+          $report = Join-Path $env:GITHUB_WORKSPACE 'qa'
+          $exe = Join-Path $env:GITHUB_WORKSPACE 'portable/SplatTricia/SplatTricia.exe'
+          $process = Start-Process -FilePath $exe -ArgumentList @('--self-test', $report) -PassThru
+          if (-not $process.WaitForExit(180000)) {
+            $process.Kill()
+            throw 'Portable application test timed out'
+          }
+          if (Test-Path 'qa/failure.txt') { Get-Content 'qa/failure.txt' }
+          if ($process.ExitCode -ne 0 -or -not (Test-Path 'qa/report.json')) { throw 'Portable application test failed' }
+          $result = Get-Content -Raw 'qa/report.json' | ConvertFrom-Json
+          if ($result.version -ne '1.1' -or $result.application_code -notlike '*_internal*src*splattricia*') {
+            throw 'The EXE did not load the new application code'
+          }
+          Get-Content 'qa/report.json'
+      - name: Preserve GUI screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SplatTricia-1.1-QA
+          path: qa/
+          if-no-files-found: ignore
+      - name: Create the three test ZIPs
+        run: python scripts/assemble_preview.py package
+      - name: Publish a separately marked test version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          @'
+          SplatTricia 1.1 test build. The stable 1.0 remains available.
+
+          This preview adds optional 16-bit depth PNG export, MP4/GIF/PNG-sequence wiggle export and a themed settings dialog. MP4 uses H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps and five cycles. GIF supports 10/20/25 fps and loops continuously.
+
+          Download all three ZIPs and extract each into the same destination directory, merging their SplatTricia folder. The SHARP checkpoint is not included: obtain it separately from Apple's official project, read and accept the model terms, and place sharp_2572gikvuh.pt in SplatTricia/models. A compatible NVIDIA GPU is still required.
+
+          The existing frozen launcher and native runtime libraries are reused unchanged; the launcher loads the updated application package from _internal/src. The portable EXE is tested for GUI layout and actual encoding. SHARP inference and CUDA rendering have not been exercised by this build server; the appearance of the new outputs must be assessed on an NVIDIA system before a stable 1.1 release.
+
+          Existing stereo geometry and controls are preserved. This is a test version, not the final 1.1 release.
+          '@ | Set-Content -Encoding utf8 preview-notes.md
+          gh release view v1.1-preview1 --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create v1.1-preview1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'SplatTricia 1.1 — test build' --prerelease --notes-file preview-notes.md
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create test release' }
+          }
+          gh release upload v1.1-preview1 --repo $env:GITHUB_REPOSITORY --clobber publish/*
+          if ($LASTEXITCODE -ne 0) { throw 'Could not upload test packages' }
+          New-Item -ItemType Directory -Force downloads | Out-Null
+          gh release download v1.1-preview1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir downloads
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify downloads' }
+          foreach ($archive in Get-ChildItem publish/*.zip) {
+            $original = (Get-FileHash -Algorithm SHA256 $archive.FullName).Hash
+            $downloaded = (Get-FileHash -Algorithm SHA256 (Join-Path 'downloads' $archive.Name)).Hash
+            if ($original -ne $downloaded) { throw "Download checksum differs: $($archive.Name)" }
+          }

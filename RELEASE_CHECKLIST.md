@@ -1,4 +1,4 @@
-# SplatTricia 1.0 release checklist
+# SplatTricia 1.1 release checklist
 
 This checklist is intentionally short. It verifies the behaviours that matter
 for a stable release rather than repeating every development experiment.

@@ -1,4 +1,4 @@
-# SplatTricia 1.0 build notes
+# SplatTricia 1.1 development build notes
 
 SplatTricia is developed and built on Windows. The release is intentionally a
 portable onedir application; users do not need a Python installation.
@@ -96,3 +96,25 @@ uploaded asset again and verifies its checksum before updating the release notes
 The original Windows build script still produces the complete monolithic
 archive; the migration script describes the packaging of this existing build,
 not a new application build.
+
+
+## 1.1 test application
+
+The development preview reuses the independently verified frozen 1.0 launcher,
+its Python dependency archive, FFmpeg and native CUDA libraries. The existing
+launcher already prepends `_internal/src` to the import path; the new application
+package is placed there. No third-party runtime is upgraded or rebuilt.
+
+`scripts/assemble_preview.py` verifies each base ZIP before extraction, copies
+the exact new source into both the runtime payload and source snapshot, and
+checks all preserved native/runtime files. The Windows workflow runs the actual
+EXE with `--self-test <report-directory>` and requires it to report the new
+version and `_internal/src` source path. This checks the GUI in German/English
+and at 100/125/150 percent widget scaling, the themed dialog, saved settings,
+16-bit PNG and actual MP4/GIF/PNG sequence encoding. It does not claim a GPU
+rendering or SHARP inference test. The new camera/export integration is tested
+separately with a deterministic rasterizer.
+
+Only after these checks does the workflow publish a separately marked prerelease
+with three ordinary ZIP files. The stable 1.0 remains unchanged. A final 1.1
+release requires visual assessment of real photo conversions on an NVIDIA GPU.

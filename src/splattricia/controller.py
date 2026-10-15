@@ -21,6 +21,7 @@ from .models import ProcessingItem, ProgressEvent
 from .naming import build_suffix
 from .renderer import render_ply_to_outputs
 from .sharp_backend import SharpSession
+from .wiggle_export import ExportCancelled
 
 
 EventCallback = Callable[[ProgressEvent], None]
@@ -148,6 +149,12 @@ class ProcessingController:
                 anaglyph_path=anaglyph_path,
                 cache_identity=identity,
                 cache_valid=False,
+                depth_path=output_dir / "depth_maps" / f"{key}_depth.png" if self.config.save_depth_map else None,
+                wiggle_path=(output_dir / "wiggle" / (
+                    f"{output_stem}_wiggle_{self.config.wiggle.fps}fps_frames"
+                    if self.config.wiggle.format == "png" else
+                    f"{output_stem}_wiggle.{self.config.wiggle.format}"
+                )) if self.config.save_wiggle else None,
             )
             cache_valid = is_valid_cache(
                 item.ply_path,
@@ -265,6 +272,8 @@ class ProcessingController:
             "save_sbs": ("progress.save_sbs", "Speichere SBS …"),
             "anaglyph": ("progress.anaglyph", "Berechne Anaglyphe …"),
             "save_anaglyph": ("progress.save_anaglyph", "Speichere Anaglyphe …"),
+            "depth_map": ("progress.depth_map", "Erzeuge Tiefenkarte …"),
+            "wiggle": ("progress.wiggle", "Erzeuge Wiggle-Animation …"),
         }
 
         for position, item in enumerate(items, start=1):
@@ -325,6 +334,11 @@ class ProcessingController:
                     jpeg_quality_sbs=self.config.jpeg_quality_sbs,
                     jpeg_quality_anaglyph=self.config.jpeg_quality_anaglyph,
                     progress_callback=render_progress,
+                    depth_path=item.depth_path,
+                    wiggle_path=item.wiggle_path,
+                    wiggle_options=self.config.wiggle,
+                    temp_root=temp_dir,
+                    cancel_callback=self.cancel_callback,
                 )
                 item.status = "ok"
 
@@ -366,6 +380,8 @@ class ProcessingController:
                     deviation=metrics.measured_deviation_permille,
                     anaglyph_seconds=metrics.anaglyph_seconds,
                 )
+            except ExportCancelled as exc:
+                raise ProcessingCancelled(str(exc)) from exc
             except Exception as exc:
                 item.status = "fehler_rendering"
                 self._emit(

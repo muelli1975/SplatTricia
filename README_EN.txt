@@ -1,4 +1,4 @@
-SplatTricia 1.0
+SplatTricia 1.1
 =================
 
 SplatTricia is a local Windows tool for automatically converting individual 2D
@@ -81,3 +81,16 @@ Error log
 ---------
 For technical failures, SplatTricia writes details to splattricia_error.log
 beside the EXE.
+
+Optional exports in 1.1
+
+- Save depth map as PNG: 16-bit relative inverse depth, white near/black far, from the original central view. Saved under depth_maps, matching the processed single-image dimensions. Stereo controls and curtains do not alter it.
+- Save wiggle animation: saved under wiggle. Settings… opens the themed editor for format, maximum image size, frame rate and cycle duration. Values are remembered separately per format.
+- MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum 1080/2160 pixels high, five cycles.
+- GIF: 10/20/25 fps, maximum 800 pixels on the long edge by default, endless loop.
+- PNG sequence: 30/60 fps, maximum 1080/2160 pixels high, one numbered cycle per source image.
+
+The default cycle takes two seconds. Images are never enlarged. Wiggle reuses the existing deviation/window placement and cached PLY; floating-window curtains are not applied. The depth and animation options are off by default.
+
+
+Setup: Extract all three 1.1 ZIPs into the same directory. Read INSTALLATION.txt.

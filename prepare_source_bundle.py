@@ -54,7 +54,7 @@ def main() -> int:
     src_pkg = ROOT / "src" / "splattricia"
     if not src_pkg.is_dir():
         raise FileNotFoundError(f"Source-Snapshot: Paket fehlt: {src_pkg}")
-    shutil.copytree(src_pkg, DEST / "src" / "splattricia")
+    shutil.copytree(src_pkg, DEST / "src" / "splattricia", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
 
     for rel in ASSET_FILES:
         copy_file(rel)

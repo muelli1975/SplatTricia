@@ -3,7 +3,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 
 set "APP_NAME=SplatTricia"
-set "VERSION=1.0"
+set "VERSION=1.1"
 set "PYTHON=%CD%\venv\Scripts\python.exe"
 set "PYINSTALLER=%CD%\venv\Scripts\pyinstaller.exe"
 set "DIST_DIR=%CD%\dist\%APP_NAME%"
@@ -15,10 +15,6 @@ if not exist "%PYTHON%" (
 )
 if not exist "%PYINSTALLER%" (
     echo FEHLER: PyInstaller fehlt im venv.
-    exit /b 1
-)
-if not exist "models\sharp_2572gikvuh.pt" (
-    echo FEHLER: SHARP-Checkpoint fehlt unter models\sharp_2572gikvuh.pt.
     exit /b 1
 )
 if not exist "assets\splattricia.ico" (
@@ -103,6 +99,8 @@ if not exist "!DIST_DIR!\source\requirements-lock.txt" (
 if exist "!DIST_DIR!\models\sharp_2572gikvuh.pt" (
     del /q "!DIST_DIR!\models\sharp_2572gikvuh.pt"
 )
+
+if not exist "!DIST_DIR!\models" mkdir "!DIST_DIR!\models"
 
 echo [6/7] Release pruefen ...
 "!PYTHON!" verify_release.py --dist "!DIST_DIR!"

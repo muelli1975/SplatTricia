@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from .export_options import WiggleOptions
 
 
 @dataclass(frozen=True)
@@ -22,8 +23,13 @@ class ProcessingConfig:
     jpeg_quality_sbs: int = 95
     jpeg_quality_anaglyph: int = 90
     copy_metadata: bool = True
+    save_depth_map: bool = False
+    save_wiggle: bool = False
+    wiggle: WiggleOptions = WiggleOptions()
 
     def validate(self) -> None:
+        if self.save_wiggle:
+            self.wiggle.validate()
         if not self.checkpoint_path.is_file():
             raise FileNotFoundError(
                 f"SHARP-Checkpoint nicht gefunden: {self.checkpoint_path}"

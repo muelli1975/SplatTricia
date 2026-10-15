@@ -18,11 +18,7 @@ for rel_src, rel_dst in [
     if src.exists():
         DATA_ITEMS.append((str(src), rel_dst))
 
-# Keep the model directory visible in the portable package.  The model itself is
-# intentionally not part of SplatTricia and is supplied by the user.
-model_dir = ROOT / "models"
-if model_dir.exists():
-    DATA_ITEMS.append((str(model_dir), "models"))
+# Model weights are never collected. The build creates an empty visible models folder.
 
 # Source snapshot and documentation for the exact release source state.
 source_dir = ROOT / "source"
