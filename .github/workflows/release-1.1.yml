@@ -1,0 +1,106 @@
+name: SplatTricia 1.1 release
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: splattricia-release-1.1
+  cancel-in-progress: true
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Release SplatTricia 1.1')
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download verified existing runtime packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v1.0 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
+      - name: Assemble the test application without changing native dependencies
+        run: python scripts/assemble_preview.py assemble --stable
+      - name: Rebuild the frozen application EXE
+        run: |
+          python -m pip install --disable-pip-version-check PyInstaller==6.22.0
+          python -m PyInstaller --noconfirm --clean --distpath preview-exe --workpath build/preview Preview.spec
+          if ($LASTEXITCODE -ne 0) { throw 'EXE rebuild failed' }
+          Copy-Item -Force 'preview-exe/SplatTricia/SplatTricia.exe' 'portable/SplatTricia/SplatTricia.exe'
+      - name: Test the actual portable EXE
+        run: |
+          $report = Join-Path $env:GITHUB_WORKSPACE 'qa'
+          $exe = Join-Path $env:GITHUB_WORKSPACE 'portable/SplatTricia/SplatTricia.exe'
+          $process = Start-Process -FilePath $exe -ArgumentList @('--self-test', $report) -PassThru
+          $deadline = [DateTime]::UtcNow.AddMinutes(3)
+          while (-not $process.WaitForExit(200)) {
+            $startup = 'portable/SplatTricia/splattricia_startup_error.log'
+            if (Test-Path $startup) {
+              New-Item -ItemType Directory -Force qa | Out-Null
+              Copy-Item $startup 'qa/startup-failure.txt'
+              Get-Content $startup
+              $process.Kill()
+              throw 'Portable application startup failed'
+            }
+            if ([DateTime]::UtcNow -gt $deadline) { $process.Kill(); throw 'Portable application test timed out' }
+          }
+          if (Test-Path 'qa/failure.txt') { Get-Content 'qa/failure.txt' }
+          if ($process.ExitCode -ne 0 -or -not (Test-Path 'qa/report.json')) { throw 'Portable application test failed' }
+          $result = Get-Content -Raw 'qa/report.json' | ConvertFrom-Json
+          if ($result.version -ne '1.1' -or $result.application_code -notlike '*_internal*splattricia*') {
+            throw 'The EXE did not load the new application code'
+          }
+          Get-Content 'qa/report.json'
+      - name: Preserve GUI screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SplatTricia-1.1-Release-QA
+          path: qa/
+          if-no-files-found: ignore
+      - name: Create the three test ZIPs
+        run: python scripts/assemble_preview.py package
+      - name: Publish verified stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          @'
+          SplatTricia 1.1 adds optional depth maps and wiggle animations.
+
+          - 16-bit grayscale depth PNGs in depth_maps (white near, black far), independent of stereo settings and floating-window curtains.
+          - Wiggle MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum height 720/1080/2160 pixels; defaults to 1080p/30 fps and contains five cycles.
+          - Wiggle GIF: 10/15/20/25 fps, default 15 fps, maximum long edge 800 pixels by default, continuous looping.
+          - PNG frame sequence: 30/60 fps, maximum height 1080/2160 pixels, one cycle in a numbered folder per source image.
+          - Themed wiggle settings with saved per-format size/frame rate; smaller images are never enlarged.
+          - Stable GUI geometry when enabling wiggle and starting processing, including long status messages.
+
+          Existing stereo geometry, slider behavior and image processing are preserved. Existing saved choices are retained; the new GIF default applies to fresh settings or after restoring defaults.
+
+          Download all three ZIPs below and extract each into the same destination directory, merging their SplatTricia folder. All runtime libraries and tools are included. A compatible NVIDIA GPU is required.
+
+          The SHARP checkpoint is not included. Obtain sharp_2572gikvuh.pt separately from https://github.com/apple-aiml-research/ml-sharp, read and accept Apple's model terms before downloading, and place the file in SplatTricia/models. Processing works offline after setup.
+
+          Windows GUI tests in German/English at 100/125/150% scaling, actual encoding checks, full package file verification and download checksum verification passed. The previous 1.0 release remains available.
+          '@ | Set-Content -Encoding utf8 release-notes.md
+          gh release view v1.1 --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) { throw 'v1.1 already exists; final releases are not overwritten automatically' }
+          gh release create v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'SplatTricia 1.1' --draft --notes-file release-notes.md
+          if ($LASTEXITCODE -ne 0) { throw 'Could not create release draft' }
+          gh release upload v1.1 --repo $env:GITHUB_REPOSITORY publish/*
+          if ($LASTEXITCODE -ne 0) { throw 'Could not upload release packages' }
+          New-Item -ItemType Directory -Force downloads | Out-Null
+          gh release download v1.1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir downloads
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify release downloads' }
+          foreach ($archive in Get-ChildItem publish/*.zip) {
+            $original = (Get-FileHash -Algorithm SHA256 $archive.FullName).Hash
+            $downloaded = (Get-FileHash -Algorithm SHA256 (Join-Path 'downloads' $archive.Name)).Hash
+            if ($original -ne $downloaded) { throw "Download checksum differs: $($archive.Name)" }
+          }
+          gh release edit v1.1 --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Could not publish verified release' }

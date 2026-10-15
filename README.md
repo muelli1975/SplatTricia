@@ -1,6 +1,6 @@
-# SplatTricia 1.1 — development preview
+# SplatTricia 1.1
 
-This branch contains the 1.1 test version. The [stable 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) remains available.
+SplatTricia 1.1 adds optional depth maps and wiggle animations. The [previous 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) remains available.
 
 [Deutsch](README_DE.md)
 
@@ -67,7 +67,7 @@ SplatTricia source code and original documentation created by Christoph Müller 
 
 ## Windows download and setup
 
-Download all three ZIP files from the [SplatTricia 1.1 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1-preview1):
+Download all three ZIP files from the [SplatTricia 1.1 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1):
 
 - `SplatTricia_1.1.zip` — application, tools, documentation and licenses
 - `SplatTricia_1.1_Runtime_1.zip` — runtime libraries, part 1
@@ -80,4 +80,4 @@ Download all three ZIP files from the [SplatTricia 1.1 release](https://github.c
 
 All runtime libraries are included. No separate Python installation, CUDA toolkit or build tools are required. Processing works offline after setup.
 
-The native runtime libraries are reused from 1.0. This preview is awaiting visual assessment on an NVIDIA GPU. `SplatTricia_1.1_SHA256SUMS.txt` provides checksums for all three ZIPs.
+The native runtime libraries are reused from 1.0. `SplatTricia_1.1_SHA256SUMS.txt` provides checksums for all three ZIPs.

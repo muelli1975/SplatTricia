@@ -26,7 +26,7 @@ def digest(path):
         return hashlib.file_digest(stream,'sha256').hexdigest()
 
 
-def assemble(base: Path, output: Path):
+def assemble(base: Path, output: Path, stable: bool = False):
     output.mkdir(parents=True, exist_ok=False)
     hashes = {}
     for name, expected in BASE_PACKAGES.items():
@@ -68,7 +68,7 @@ def assemble(base: Path, output: Path):
     shutil.copytree(ROOT/'assets',source/'assets')
     for name in ['README_DE.txt','README_EN.txt','LICENSE.txt']:
         shutil.copy2(ROOT/name,app/name)
-    note = ('SplatTricia 1.1 - Testversion / Test build\n\n'
+    note = (('SplatTricia 1.1\n\n' if stable else 'SplatTricia 1.1 - Testversion / Test build\n\n') +
             'Alle drei ZIP-Dateien in denselben Zielordner entpacken.\n'
             'Extract all three ZIP files into the same destination directory.\n\n'
             'SHARP-Checkpoint separat von Apple beziehen; vor dem Download die\n'
@@ -159,6 +159,7 @@ if __name__=='__main__':
     parser.add_argument('--base',type=Path,default=Path('base'))
     parser.add_argument('--output',type=Path,default=Path('portable'))
     parser.add_argument('--publish',type=Path,default=Path('publish'))
+    parser.add_argument('--stable',action='store_true',help='Write the final-release installation note')
     args=parser.parse_args()
-    if args.stage=='assemble':assemble(args.base,args.output)
+    if args.stage=='assemble':assemble(args.base,args.output,args.stable)
     else:package(args.base,args.output/'SplatTricia',args.publish)

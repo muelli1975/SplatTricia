@@ -1,4 +1,4 @@
-# SplatTricia 1.1 development build notes
+# SplatTricia 1.1 build notes
 
 SplatTricia is developed and built on Windows. The release is intentionally a
 portable onedir application; users do not need a Python installation.
@@ -119,3 +119,11 @@ integration is tested separately with a deterministic rasterizer.
 Only after these checks does the workflow publish a separately marked
 prerelease with three ordinary ZIP files. The stable 1.0 remains unchanged.
 A final 1.1 release requires visual assessment on an NVIDIA GPU.
+
+## Stable 1.1 publication
+
+The release-1.1 workflow uses the same verified dependency packages and EXE
+rebuild as the preview. The --stable assembly flag writes the final installation
+note. GUI/encoder tests and full ZIP content verification run before upload.
+The release remains a draft until all three uploaded ZIPs have been downloaded
+and their SHA-256 checksums verified. The previous v1.0 remains available.

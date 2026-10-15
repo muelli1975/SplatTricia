@@ -1,6 +1,6 @@
-# SplatTricia 1.1 — Testversion
+# SplatTricia 1.1
 
-Dieser Zweig enthält die Testversion 1.1. Die [stabile 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) bleibt verfügbar.
+SplatTricia 1.1 ergänzt optionale Tiefenkarten und Wiggle-Animationen. Die [bisherige 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) bleibt verfügbar.
 
 [English documentation](README.md)
 
@@ -67,7 +67,7 @@ Der von Christoph Müller erstellte SplatTricia-Quellcode und die eigene Dokumen
 
 ## Windows-Download und Einrichtung
 
-Alle drei ZIP-Dateien aus dem [Release SplatTricia 1.1](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1-preview1) herunterladen:
+Alle drei ZIP-Dateien aus dem [Release SplatTricia 1.1](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1) herunterladen:
 
 - `SplatTricia_1.1.zip` — Programm, Werkzeuge, Dokumentation und Lizenzen
 - `SplatTricia_1.1_Runtime_1.zip` — Laufzeitbibliotheken, Teil 1
@@ -80,4 +80,4 @@ Alle drei ZIP-Dateien aus dem [Release SplatTricia 1.1](https://github.com/muell
 
 Alle Laufzeitbibliotheken sind enthalten. Python, CUDA-Toolkit und Build-Werkzeuge müssen nicht separat installiert werden. Nach der Einrichtung funktioniert die Verarbeitung offline.
 
-Die nativen Laufzeitbibliotheken werden aus der 1.0 übernommen. Diese Testversion wartet noch auf die Sichtprüfung der Ergebnisse auf einer NVIDIA-GPU. `SplatTricia_1.1_SHA256SUMS.txt` enthält die Prüfsummen aller drei ZIPs.
+Die nativen Laufzeitbibliotheken werden aus der 1.0 übernommen. `SplatTricia_1.1_SHA256SUMS.txt` enthält die Prüfsummen aller drei ZIPs.
