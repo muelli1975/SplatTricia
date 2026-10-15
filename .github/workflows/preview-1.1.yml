@@ -34,7 +34,6 @@ jobs:
           Copy-Item -Force 'preview-exe/SplatTricia/SplatTricia.exe' 'portable/SplatTricia/SplatTricia.exe'
       - name: Test the actual portable EXE
         run: |
-          ./scripts/configure_test_display.ps1
           $report = Join-Path $env:GITHUB_WORKSPACE 'qa'
           $exe = Join-Path $env:GITHUB_WORKSPACE 'portable/SplatTricia/SplatTricia.exe'
           $process = Start-Process -FilePath $exe -ArgumentList @('--self-test', $report) -PassThru

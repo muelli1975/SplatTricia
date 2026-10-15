@@ -93,6 +93,25 @@ def _screenshot(widget, path):
         ImageGrab.grab(bbox=(x, y, x+widget.winfo_width(), y+widget.winfo_height())).save(path)
 
 
+def _main_screenshot(app, path):
+    # Hosted Windows desktops can be fixed at 1024x768. Tk does not paint the
+    # off-screen canvas area, even for PrintWindow. Capture a temporarily scaled
+    # view; all layout checks still run at their requested 100/125/150% scale.
+    scale = min(1.0, (app.winfo_screenwidth()-24)/app.winfo_width(),
+                (app.winfo_screenheight()-90)/app.winfo_height())
+    try:
+        ctk.set_widget_scaling(scale)
+        ctk.set_window_scaling(scale)
+        app.geometry('+0+0')
+        _settle(app)
+        _check_children(app)
+        _screenshot(app,path)
+    finally:
+        ctk.set_widget_scaling(1.0)
+        ctk.set_window_scaling(1.0)
+        _settle(app)
+
+
 def run(output_dir: Path) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir/'failure.txt').unlink(missing_ok=True)
@@ -129,7 +148,7 @@ def _run_checks(output_dir):
                     assert app.wiggle_button.cget('state') == 'normal'
                     _settle(app)
                     if scale == 1.0:
-                        _screenshot(app, output_dir/f'gui-{locale}.png')
+                        _main_screenshot(app, output_dir/f'gui-{locale}.png')
                     def apply(options):
                         app.wiggle_options = options
                         app._save_paths()
