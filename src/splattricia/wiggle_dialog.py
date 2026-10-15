@@ -79,10 +79,12 @@ class WiggleDialog(ctk.CTkToplevel):
     def _refresh(self):
         is_gif = self.options.format == "gif"
         self.labels[1].configure(text=self.tr("wiggle.size_long" if is_gif else "wiggle.size_height"))
-        self.size_menu.configure(values=["640", "800", "1024"] if is_gif else ["1080", "2160"])
+        sizes = (["640", "800", "1024"] if is_gif else
+                 ["720", "1080", "2160"] if self.options.format == "mp4" else ["1080", "2160"])
+        self.size_menu.configure(values=sizes)
         self.size_menu.set(str({"mp4": self.options.video_height, "gif": self.options.gif_long_side,
                                 "png": self.options.png_height}[self.options.format]))
-        self.fps_menu.configure(values=["10", "20", "25"] if is_gif else ["30", "60"])
+        self.fps_menu.configure(values=["10", "15", "20", "25"] if is_gif else ["30", "60"])
         self.fps_menu.set(str(self.options.fps))
         self.hint.configure(text=self.tr("wiggle.hint_" + self.options.format))
 

@@ -11,7 +11,7 @@ import time
 import numpy as np
 from PIL import Image
 
-from .export_options import WiggleOptions, cycle_index, camera_weight
+from .export_options import WiggleOptions, cycle_index, camera_weight, gif_frame_durations
 from .output_writer import _replace_with_retry
 
 
@@ -132,7 +132,7 @@ def export_wiggle(render_view: Callable[[float], np.ndarray], source_size: tuple
                 temporary = work / "finished.gif"
                 try:
                     frames[0].save(temporary, format="GIF", save_all=True, append_images=frames[1:],
-                                   loop=0, duration=1000 // options.fps, disposal=2, optimize=False)
+                                   loop=0, duration=gif_frame_durations(count, options.fps), disposal=2, optimize=False)
                     check_cancelled(cancel)
                     _replace_with_retry(temporary, output)
                 finally:

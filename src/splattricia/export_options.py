@@ -9,7 +9,7 @@ import math
 class WiggleOptions:
     format: str = "mp4"
     video_fps: int = 30
-    gif_fps: int = 20
+    gif_fps: int = 15
     png_fps: int = 30
     video_height: int = 1080
     gif_long_side: int = 800
@@ -30,11 +30,12 @@ class WiggleOptions:
         for value in (self.video_fps, self.png_fps):
             if type(value) is not int or value not in (30, 60):
                 raise ValueError("MP4/PNG: 30 oder 60 fps wählen / choose 30 or 60 fps.")
-        if type(self.gif_fps) is not int or self.gif_fps not in (10, 20, 25):
-            raise ValueError("GIF: 10, 20 oder 25 fps wählen / choose 10, 20 or 25 fps.")
-        for value in (self.video_height, self.png_height):
-            if type(value) is not int or value not in (1080, 2160):
-                raise ValueError("MP4/PNG: 1080 oder 2160 Pixel Bildhöhe wählen.")
+        if type(self.gif_fps) is not int or self.gif_fps not in (10, 15, 20, 25):
+            raise ValueError("GIF: 10, 15, 20 oder 25 fps wählen / choose 10, 15, 20 or 25 fps.")
+        if type(self.video_height) is not int or self.video_height not in (720, 1080, 2160):
+            raise ValueError("MP4: 720, 1080 oder 2160 Pixel Bildhöhe wählen.")
+        if type(self.png_height) is not int or self.png_height not in (1080, 2160):
+            raise ValueError("PNG: 1080 oder 2160 Pixel Bildhöhe wählen.")
         if type(self.gif_long_side) is not int or not 64 <= self.gif_long_side <= 2160:
             raise ValueError("GIF: Lange Bildseite von 64 bis 2160 Pixeln wählen.")
         if not isinstance(self.cycle_seconds, (int, float)) or not math.isfinite(self.cycle_seconds) or not 0.5 <= self.cycle_seconds <= 30:
@@ -68,6 +69,12 @@ class WiggleOptions:
 def cycle_index(index: int, count: int) -> int:
     """Reuse the identical camera view for the return half of the cycle."""
     return min(index, count - index)
+
+
+def gif_frame_durations(count: int, fps: int) -> list[int]:
+    """Round cumulative timestamps to GIF's 10-ms grid without timing drift."""
+    ticks = [(index * 100 + fps // 2) // fps for index in range(count + 1)]
+    return [(end - start) * 10 for start, end in zip(ticks, ticks[1:])]
 
 
 def camera_weight(index: int, count: int) -> float:

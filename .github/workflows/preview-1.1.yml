@@ -72,7 +72,7 @@ jobs:
           @'
           SplatTricia 1.1 test build. The stable 1.0 remains available.
 
-          This preview adds optional 16-bit depth PNG export, MP4/GIF/PNG-sequence wiggle export and a themed settings dialog. MP4 uses H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps and five cycles. GIF supports 10/20/25 fps and loops continuously.
+          This preview adds optional 16-bit depth PNG export, MP4/GIF/PNG-sequence wiggle export and a themed settings dialog. MP4 uses H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps and five cycles. MP4 supports maximum heights of 720/1080/2160 pixels (default 1080). GIF supports 10/15/20/25 fps, defaults to 15 fps and loops continuously. GUI geometry remains fixed when toggling wiggle or starting processing.
 
           Download all three ZIPs and extract each into the same destination directory, merging their SplatTricia folder. The SHARP checkpoint is not included: obtain it separately from Apple's official project, read and accept the model terms, and place sharp_2572gikvuh.pt in SplatTricia/models. A compatible NVIDIA GPU is still required.
 

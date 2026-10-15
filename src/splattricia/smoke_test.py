@@ -39,6 +39,24 @@ def _check_children(parent):
         _check_children(child)
 
 
+def _layout_geometry(parent):
+    result = {}
+    for child in parent.winfo_children():
+        if child.__class__.__name__.startswith('CTk'):
+            result[str(child)] = (child.winfo_x(),child.winfo_y(),
+                                  child.winfo_width(),child.winfo_height())
+        result.update(_layout_geometry(child))
+    return result
+
+
+def _assert_layout_unchanged(app, expected):
+    _settle(app)
+    actual = _layout_geometry(app)
+    changed = [(key,value,actual.get(key)) for key,value in expected.items()
+               if actual.get(key) != value]
+    assert not changed, ('layout moved during state change',changed)
+
+
 def _screenshot(widget, path):
     import sys
     if sys.platform == 'win32':
@@ -143,10 +161,14 @@ def _run_checks(output_dir):
                     _settle(app)
                     assert app.wiggle_button.cget('state') == 'disabled'
                     _check_children(app)
-                    app.save_wiggle.set(True)
-                    app._on_wiggle_changed()
+                    initial_geometry = _layout_geometry(app)
+                    app.save_wiggle_check.toggle()
                     assert app.wiggle_button.cget('state') == 'normal'
-                    _settle(app)
+                    _assert_layout_unchanged(app,initial_geometry)
+                    app.save_wiggle_check.toggle()
+                    _assert_layout_unchanged(app,initial_geometry)
+                    app.save_wiggle_check.toggle()
+                    _assert_layout_unchanged(app,initial_geometry)
                     if scale == 1.0:
                         _main_screenshot(app, output_dir/f'gui-{locale}.png')
                     def apply(options):
@@ -157,10 +179,14 @@ def _run_checks(output_dir):
                         _settle(app)
                         assert dialog.cget('fg_color') == BG_MAIN
                         _check_children(dialog)
+                        assert dialog.size_menu.cget('values') == ['720','1080','2160']
+                        dialog.size_menu.set('720')
                         if scale == 1.0:
                             _screenshot(dialog, output_dir/f'wiggle-{locale}.png')
                         dialog.fps_menu.set('60')
                         dialog._format_changed('GIF')
+                        assert dialog.fps_menu.cget('values') == ['10','15','20','25']
+                        assert dialog.fps_menu.get() == '15'
                         dialog.fps_menu.set('25')
                         dialog.size_menu.set('640')
                         dialog._save()
@@ -170,12 +196,25 @@ def _run_checks(output_dir):
                     _settle(app)
                     saved = WiggleOptions.from_settings(load_settings(root/'settings.json')['wiggle'])
                     assert saved.format == 'gif' and saved.gif_fps == 25 and saved.video_fps == 60
-                    app.is_running = True
-                    app._set_processing_controls(True)
+                    assert saved.video_height == 720
+                    # Exercise the actual Start callback without SHARP/model
+                    # execution. Placeholders live only in this disposable root.
+                    (root/'models').mkdir()
+                    (root/'models/sharp_2572gikvuh.pt').write_bytes(b'GUI test placeholder')
+                    (root/'input.png').write_bytes(b'GUI test placeholder')
+                    app.input_file.set(str(root/'input.png'))
+                    app._processing_worker = lambda *args: None
+                    before_start = _layout_geometry(app)
+                    app.start_button.invoke()
+                    assert app.is_running
+                    _assert_layout_unchanged(app,before_start)
+                    app.status_text.set('Processing / ' + 'long_filename_' * 30 + '.jpg')
+                    _assert_layout_unchanged(app,before_start)
                     assert app.save_wiggle_check.cget('state') == 'disabled'
                     assert app.wiggle_button.cget('state') == 'disabled'
                     app.is_running = False
                     app._set_processing_controls(False)
+                    _assert_layout_unchanged(app,before_start)
                     assert app.wiggle_button.cget('state') == 'normal'
                     # Existing slider values and mutual locks retain their defaults.
                     assert app.deviation.get() == 20 and app.window_position.get() == 100
@@ -202,7 +241,7 @@ def _run_checks(output_dir):
             export_wiggle(view,(64,47),options,path,work/'_temp')
             decoded = subprocess.run([ffmpeg_path(),'-hide_banner','-loglevel','error','-i',str(path),'-f','rawvideo','-pix_fmt','rgb24','pipe:1'],capture_output=True,check=True,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             assert len(decoded.stdout) == options.frame_count*5*64*48*3
-        for fps in (10,20,25):
+        for fps in (10,15,20,25):
             options = WiggleOptions(format='gif',gif_fps=fps,cycle_seconds=1)
             path = work/f'animation-{fps}.gif'
             export_wiggle(view,(64,47),options,path,work/'_temp')
@@ -220,5 +259,6 @@ def _run_checks(output_dir):
         with Image.open(path) as image:
             assert np.asarray(image).tolist()==[[65535,21845,0]]
     return {'version':__version__,'application_code':str(Path(gui.__file__).resolve()),
-            'gui_layouts':layouts,'encoder_tests':'MP4 30/60, GIF 10/20/25, PNG sequence, 16-bit depth PNG',
+            'gui_layouts':layouts,'layout_transitions':'wiggle on/off, Start, busy, long status, idle',
+            'encoder_tests':'MP4 30/60, GIF 10/15/20/25, PNG sequence, 16-bit depth PNG',
             'cuda_inference_tested':False}

@@ -115,6 +115,9 @@ class SplatTriciaApp(ctk.CTk):
             try:
                 name = widget.__class__.__name__
                 if name == "CTkButton":
+                    # Keep the declared button size when Tk redraws its label
+                    # on hover, click or enabled/disabled transitions.
+                    widget.grid_propagate(False)
                     widget.configure(
                         fg_color=BUTTON_BG,
                         hover_color=BUTTON_HOVER,
@@ -523,11 +526,15 @@ class SplatTriciaApp(ctk.CTk):
         footer = ctk.CTkFrame(self, corner_radius=0, fg_color=BG_SOFT)
         footer.grid(row=2, column=0, sticky="ew")
         footer.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(
-            footer, textvariable=self.status_text, anchor="w",
+        self.status_label = ctk.CTkLabel(
+            footer, textvariable=self.status_text, anchor="w", width=1,
             font=ctk.CTkFont(family=FONT_FAMILY, size=13),
             text_color=TEXT,
-        ).grid(row=0, column=0, sticky="ew", padx=24, pady=(14, 4))
+        )
+        # Status/filenames may be arbitrarily long; they use the available
+        # footer space instead of changing the width of the window's columns.
+        self.status_label.grid_propagate(False)
+        self.status_label.grid(row=0, column=0, sticky="ew", padx=24, pady=(14, 4))
         self.progress = ctk.CTkProgressBar(
             footer, variable=self.progress_value,
             fg_color=PROGRESS_TRACK, progress_color=GOLD,

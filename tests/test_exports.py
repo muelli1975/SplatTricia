@@ -8,7 +8,7 @@ from PIL import Image, ImageSequence
 import pytest
 
 from splattricia.depth_export import depth_pixels, save_depth_png
-from splattricia.export_options import WiggleOptions, camera_weight, cycle_index
+from splattricia.export_options import WiggleOptions, camera_weight, cycle_index, gif_frame_durations
 from splattricia.wiggle_export import export_wiggle, ffmpeg_path, ExportCancelled
 
 
@@ -41,12 +41,19 @@ def test_cycle_has_no_duplicated_endpoint_and_reuses_return_views():
 
 
 def test_options_preserve_settings_per_format_and_do_not_upscale():
+    assert WiggleOptions().gif_fps == 15
     o = WiggleOptions(video_fps=60, gif_fps=10, png_height=2160)
     assert WiggleOptions.from_settings(o.to_settings()) == o
     assert o.output_size(640, 480) == (640, 480)
     assert o.output_size(3000, 4000) == (810, 1080)
     assert replace(o, format='gif').output_size(3000, 4000) == (600, 800)
     assert WiggleOptions.from_settings({'video_fps': 'bad'}) == WiggleOptions()
+    mp4 = WiggleOptions(video_height=720)
+    mp4.validate()
+    assert mp4.output_size(3840, 2160) == (1280, 720)
+    assert mp4.output_size(480, 640) == (480, 640)
+    with pytest.raises(ValueError):
+        WiggleOptions(format='png', png_height=720).validate()
 
 
 def test_png_sequence_replaces_whole_previous_cycle(tmp_path):
@@ -68,7 +75,7 @@ def test_png_sequence_replaces_whole_previous_cycle(tmp_path):
     assert not list((tmp_path / '_temp').iterdir())
 
 
-@pytest.mark.parametrize('fps', [10, 20, 25])
+@pytest.mark.parametrize('fps', [10, 15, 20, 25])
 def test_gif_loop_and_timing(tmp_path, fps):
     o = WiggleOptions(format='gif', gif_fps=fps, cycle_seconds=1)
     output = tmp_path / f'{fps}.gif'
@@ -77,6 +84,18 @@ def test_gif_loop_and_timing(tmp_path, fps):
         assert im.info['loop'] == 0
         assert im.size == (64, 47)
         assert sum(frame.info['duration'] for frame in ImageSequence.Iterator(im)) == 1000
+
+
+def test_15fps_timing_has_no_cumulative_drift():
+    durations = gif_frame_durations(450, 15)
+    assert set(durations) == {60, 70}
+    assert sum(durations) == 30000
+    elapsed = 0
+    for index, duration in enumerate(durations, start=1):
+        elapsed += duration
+        assert abs(elapsed - index * 1000 / 15) <= 5
+    for fps in (10, 20, 25):
+        assert gif_frame_durations(fps, fps) == [1000 // fps] * fps
 
 
 @pytest.mark.parametrize('fps', [30, 60])
