@@ -415,7 +415,7 @@ class SplatTriciaApp(ctk.CTk):
                                                 variable=self.save_wiggle, command=self._on_wiggle_changed,
                                                 width=190)
         self.save_wiggle_check.grid(row=0, column=0, sticky="w", padx=(0, 8))
-        self.wiggle_button = ctk.CTkButton(wiggle_row, text=self.tr("wiggle.settings"), width=100,
+        self.wiggle_button = ctk.CTkButton(wiggle_row, text=self.tr("wiggle.settings"), width=110,
                                            command=self._open_wiggle_dialog)
         self.wiggle_button.grid(row=0, column=1, sticky="e")
 

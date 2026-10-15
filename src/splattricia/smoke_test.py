@@ -32,6 +32,8 @@ def _settle(widget):
 
 def _check_children(parent):
     for child in parent.winfo_children():
+        if child.__class__.__name__ == 'CTkButton' and child._text_label is not None:
+            assert child._text_label.winfo_reqwidth() <= child._text_label.winfo_width(), ('button text clipped',str(child))
         if child.__class__.__name__.startswith('CTk'):
             assert child.winfo_x() >= -2 and child.winfo_y() >= -2, ('control origin', str(child))
             assert child.winfo_x() + child.winfo_width() <= parent.winfo_width() + 2, ('control width', str(child), child.winfo_x(), child.winfo_width(), parent.winfo_width())

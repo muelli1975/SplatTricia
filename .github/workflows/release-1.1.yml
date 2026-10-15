@@ -88,11 +88,24 @@ jobs:
 
           Windows GUI tests in German/English at 100/125/150% scaling, actual encoding checks, full package file verification and download checksum verification passed. The previous 1.0 release remains available.
           '@ | Set-Content -Encoding utf8 release-notes.md
-          gh release view v1.1 --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) { throw 'v1.1 already exists; final releases are not overwritten automatically' }
-          gh release create v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'SplatTricia 1.1' --draft --notes-file release-notes.md
-          if ($LASTEXITCODE -ne 0) { throw 'Could not create release draft' }
-          gh release upload v1.1 --repo $env:GITHUB_REPOSITORY publish/*
+          $currentHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha'
+          if ($LASTEXITCODE -ne 0 -or $currentHead -ne $env:GITHUB_SHA) { throw 'A newer main commit superseded this build' }
+          gh release view v1.1 --repo $env:GITHUB_REPOSITORY --json isDraft > draft-state.json 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            $existing = Get-Content -Raw draft-state.json | ConvertFrom-Json
+            if (-not $existing.isDraft) { throw 'Published v1.1 is never overwritten automatically' }
+            gh release edit v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --notes-file release-notes.md
+            if ($LASTEXITCODE -ne 0) { throw 'Could not update unpublished draft' }
+            $tagHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1" --jq '.object.sha' 2>$null
+            if ($LASTEXITCODE -eq 0 -and $tagHead -ne $env:GITHUB_SHA) {
+              gh api "repos/$env:GITHUB_REPOSITORY/git/refs/tags/v1.1" --method PATCH -f "sha=$env:GITHUB_SHA"
+              if ($LASTEXITCODE -ne 0) { throw 'Could not advance unpublished source tag' }
+            }
+          } else {
+            gh release create v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'SplatTricia 1.1' --draft --notes-file release-notes.md
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create release draft' }
+          }
+          gh release upload v1.1 --repo $env:GITHUB_REPOSITORY --clobber publish/*
           if ($LASTEXITCODE -ne 0) { throw 'Could not upload release packages' }
           New-Item -ItemType Directory -Force downloads | Out-Null
           gh release download v1.1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir downloads
@@ -102,5 +115,7 @@ jobs:
             $downloaded = (Get-FileHash -Algorithm SHA256 (Join-Path 'downloads' $archive.Name)).Hash
             if ($original -ne $downloaded) { throw "Download checksum differs: $($archive.Name)" }
           }
+          $currentHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha'
+          if ($LASTEXITCODE -ne 0 -or $currentHead -ne $env:GITHUB_SHA) { throw 'A newer main commit superseded this build' }
           gh release edit v1.1 --repo $env:GITHUB_REPOSITORY --draft=false --latest
           if ($LASTEXITCODE -ne 0) { throw 'Could not publish verified release' }
