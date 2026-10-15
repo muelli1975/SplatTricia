@@ -8,7 +8,7 @@ SplatTricia ist ein lokales Windows-Werkzeug zur automatischen Konvertierung ein
 
 Die 3D-Rekonstruktion basiert auf **Apple SHARP**. SplatTricia verarbeitet Bilder lokal, führt keine automatischen Modell-Downloads durch und benötigt für die Benutzung keine Cloud oder Online-Verbindung.
 
-[![SplatTricia 1.0](docs/screenshots/SplatTricia.png)](docs/screenshots/SplatTricia.png)
+[![SplatTricia 1.1](docs/screenshots/SplatTricia.png)](docs/screenshots/SplatTricia.png)
 
 ## Voraussetzungen
 
