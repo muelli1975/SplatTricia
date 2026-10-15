@@ -78,3 +78,21 @@ The source snapshot is therefore meant as a reproducible reference for the
 corresponding release, not as a complete backup of the developer workstation.
 
 The archive contains a single `SplatTricia` application folder. Application folders and executable names remain independent of version and architecture; those belong in the download archive name.
+
+## GitHub packaging of the existing 1.0 release
+
+The GitHub release distributes the existing portable application as
+`SplatTricia_1.0.zip` plus two `SplatTricia_1.0_Runtime_*.zip` files.
+Extract all three into the same destination directory, merging their shared
+`SplatTricia` folder.
+
+`scripts/package_existing_release.py` performs the one-time migration from the
+previously hosted archive. It requires the independently audited original
+SHA-256 checksum, copies compressed ZIP entries without rebuilding the program,
+adds a bilingual installation note, and verifies every original file by SHA-256.
+No SHARP checkpoint is included. The publication workflow downloads every
+uploaded asset again and verifies its checksum before updating the release notes.
+
+The original Windows build script still produces the complete monolithic
+archive; the migration script describes the packaging of this existing build,
+not a new application build.

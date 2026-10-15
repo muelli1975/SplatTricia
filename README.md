@@ -53,8 +53,19 @@ Active maintenance, support, issue handling or pull-request review cannot be gua
 
 SplatTricia source code and original documentation created by Christoph Müller are licensed under the **MIT License**. SHARP and all other third-party components remain subject solely to their respective licenses.
 
-## Windows download
+## Windows download and setup
 
-The portable Windows version is available here:
+Download all three ZIP files from the [SplatTricia 1.0 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0):
 
-https://traumnarben.de/download/SplatTricia_1.0.zip
+- `SplatTricia_1.0.zip` — application, tools, documentation and licenses
+- `SplatTricia_1.0_Runtime_1.zip` — runtime libraries, part 1
+- `SplatTricia_1.0_Runtime_2.zip` — runtime libraries, part 2
+
+1. Extract **every ZIP into the same destination directory**, merging their shared `SplatTricia` subfolder. Do not extract them into separate folders named after each archive.
+2. Obtain the SHARP checkpoint yourself from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp). Read and accept Apple's model terms before downloading.
+3. Place `sharp_2572gikvuh.pt` in `SplatTricia\models`.
+4. Start `SplatTricia\SplatTricia.exe`.
+
+All runtime libraries are included. No separate Python installation, CUDA toolkit or build tools are required. Processing works offline after setup.
+
+The application and runtime files are unchanged from the original 1.0 distribution. A bilingual `INSTALLATION.txt` is included. `SplatTricia_1.0_SHA256SUMS.txt` provides download checksums; the accompanying manifest records the unchanged original files.
