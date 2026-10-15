@@ -79,8 +79,13 @@ def assemble(base: Path, output: Path):
             'NVIDIA-Grafikkarte weiterhin erforderlich. / NVIDIA GPU still required.\n')
     (app/'INSTALLATION.txt').write_text(note,encoding='utf-8')
     (app/'models').mkdir(exist_ok=True)
-    # Verify that the launcher and every native runtime file remain identical.
-    preserved = {name:sha for name,sha in hashes.items() if name.startswith('SplatTricia/_internal/') or name=='SplatTricia/SplatTricia.exe'}
+    # Locale resources belong to the updated application. All other frozen
+    # runtime files must remain identical before the EXE is rebuilt.
+    updated_locales = {f'SplatTricia/_internal/splattricia/locales/{path.name}'
+                       for path in (ROOT/'src/splattricia/locales').glob('*.json')}
+    preserved = {name:sha for name,sha in hashes.items()
+                 if (name.startswith('SplatTricia/_internal/') or name=='SplatTricia/SplatTricia.exe')
+                 and name not in updated_locales}
     for name,expected in preserved.items():
         if digest(output.joinpath(*PurePosixPath(name).parts)) != expected:
             raise RuntimeError(f'Runtime changed: {name}')
