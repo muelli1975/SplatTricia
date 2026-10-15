@@ -7,8 +7,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import shutil
+import subprocess
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,12 +100,25 @@ def assemble(base: Path, output: Path):
 def package(base: Path, app: Path, destination: Path):
     destination.mkdir(parents=True,exist_ok=False)
     runtime = set()
+    application_resources = {f'SplatTricia/_internal/splattricia/locales/{path.name}'
+                             for path in (ROOT/'src/splattricia/locales').glob('*.json')}
     for index in (1,2):
         old = base/f'SplatTricia_1.0_Runtime_{index}.zip'
         new = destination/f'SplatTricia_1.1_Runtime_{index}.zip'
         shutil.copyfile(old,new)
-        with zipfile.ZipFile(old) as archive:
+        with zipfile.ZipFile(new) as archive:
+            outdated = [info.filename for info in archive.infolist()
+                        if info.filename.replace('\\','/') in application_resources]
+        if outdated:
+            # Move application translations out of the dependency ZIPs so the
+            # extraction order cannot restore old labels. 7-Zip copies all
+            # retained compressed entries without recompressing native files.
+            seven_zip = shutil.which('7z') or str(Path(os.environ.get('ProgramFiles','C:/Program Files'))/'7-Zip/7z.exe')
+            subprocess.run([seven_zip,'d','-y',str(new),*outdated],check=True)
+        with zipfile.ZipFile(new) as archive:
             runtime.update(info.filename.replace('\\','/').rstrip('/') for info in archive.infolist())
+    if runtime & application_resources:
+        raise RuntimeError('Old application translations remain in runtime ZIPs')
     main = destination/'SplatTricia_1.1.zip'
     with zipfile.ZipFile(main,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as archive:
         for path in sorted(app.rglob('*')):
@@ -116,6 +131,24 @@ def package(base: Path, app: Path, destination: Path):
     files = [main,*(destination/f'SplatTricia_1.1_Runtime_{i}.zip' for i in (1,2))]
     if any(path.stat().st_size >= 2*1024**3 for path in files):
         raise RuntimeError('Release asset exceeds GitHub size limit')
+    # Verify the combined extracted result, not just the pre-package app.
+    # This catches omitted updates and overlapping paths across the three ZIPs.
+    expected = {path.relative_to(app.parent).as_posix():digest(path)
+                for path in app.rglob('*') if path.is_file() and '__pycache__' not in path.parts}
+    actual = {}
+    for path in files:
+        with zipfile.ZipFile(path) as archive:
+            for info in archive.infolist():
+                name = info.filename.replace('\\','/')
+                if name.endswith('/'):
+                    continue
+                if name in actual:
+                    raise RuntimeError(f'Duplicate packaged file: {name}')
+                with archive.open(info) as stream:
+                    actual[name] = hashlib.file_digest(stream,'sha256').hexdigest()
+    if actual != expected:
+        raise RuntimeError('Combined ZIP contents differ from the tested application')
+    print(f'Verified {len(actual)} packaged files against the tested application.',flush=True)
     (destination/'SplatTricia_1.1_SHA256SUMS.txt').write_text(''.join(f'{digest(path)}  {path.name}\n' for path in files),encoding='ascii')
     print('Three test ZIPs created; EXE rebuilt, native dependencies preserved.',flush=True)
 
