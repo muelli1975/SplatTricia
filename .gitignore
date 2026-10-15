@@ -24,3 +24,12 @@ tools/
 
 # Test and scratch data
 test/
+
+# Portable test-package staging
+portable/
+preview-exe/
+base/
+publish/
+qa/
+source/
+splattricia_startup_error.log

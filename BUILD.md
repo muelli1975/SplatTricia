@@ -100,21 +100,22 @@ not a new application build.
 
 ## 1.1 test application
 
-The development preview reuses the independently verified frozen 1.0 launcher,
-its Python dependency archive, FFmpeg and native CUDA libraries. The existing
-launcher already prepends `_internal/src` to the import path; the new application
-package is placed there. No third-party runtime is upgraded or rebuilt.
+The preview preserves the independently verified 1.0 runtime libraries,
+third-party Python code, native CUDA extension and frozen runtime hooks.
+`Preview.spec` reads the published dependency archive, replaces only the
+SplatTricia application modules, and rebuilds a normal frozen Windows EXE
+with PyInstaller 6.22.0 and Python 3.12. No source-path override is used.
+The JSON language resources are copied into the application's resource folder.
 
-`scripts/assemble_preview.py` verifies each base ZIP before extraction, copies
-the exact new source into both the runtime payload and source snapshot, and
-checks all preserved native/runtime files. The Windows workflow runs the actual
-EXE with `--self-test <report-directory>` and requires it to report the new
-version and `_internal/src` source path. This checks the GUI in German/English
-and at 100/125/150 percent widget scaling, the themed dialog, saved settings,
-16-bit PNG and actual MP4/GIF/PNG sequence encoding. It does not claim a GPU
-rendering or SHARP inference test. The new camera/export integration is tested
-separately with a deterministic rasterizer.
+`scripts/assemble_preview.py` checks every base ZIP before extraction and
+verifies every preserved original runtime file. The exact new source and
+build scripts are included in the source snapshot. The Windows workflow
+requires the rebuilt EXE to report version 1.1 and complete its GUI/encoder
+self-test. This checks German/English layout and widget scaling, the themed
+dialog, saved settings, 16-bit PNG and actual MP4/GIF/PNG-sequence encoding.
+It does not claim a CUDA rendering or SHARP inference test. Camera/export
+integration is tested separately with a deterministic rasterizer.
 
-Only after these checks does the workflow publish a separately marked prerelease
-with three ordinary ZIP files. The stable 1.0 remains unchanged. A final 1.1
-release requires visual assessment of real photo conversions on an NVIDIA GPU.
+Only after these checks does the workflow publish a separately marked
+prerelease with three ordinary ZIP files. The stable 1.0 remains unchanged.
+A final 1.1 release requires visual assessment on an NVIDIA GPU.

@@ -43,10 +43,18 @@ def _screenshot(widget, path):
     import sys
     if sys.platform == 'win32':
         import ctypes
-        hwnd = ctypes.windll.user32.GetParent(widget.winfo_id()) or widget.winfo_id()
         from ctypes import wintypes
         user = ctypes.windll.user32
+        user.GetParent.restype = wintypes.HWND
+        user.GetParent.argtypes = [wintypes.HWND]
+        hwnd = user.GetParent(widget.winfo_id()) or widget.winfo_id()
         gdi = ctypes.windll.gdi32
+        user.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+        user.PrintWindow.argtypes = [wintypes.HWND, wintypes.HDC, wintypes.UINT]
+        user.ReleaseDC.argtypes = [wintypes.HWND, wintypes.HDC]
+        gdi.GetDIBits.argtypes = [wintypes.HDC, wintypes.HBITMAP, wintypes.UINT, wintypes.UINT, ctypes.c_void_p, ctypes.c_void_p, wintypes.UINT]
+        gdi.DeleteObject.argtypes = [wintypes.HGDIOBJ]
+        gdi.DeleteDC.argtypes = [wintypes.HDC]
         user.GetWindowDC.restype = wintypes.HDC
         user.GetWindowDC.argtypes = [wintypes.HWND]
         gdi.CreateCompatibleDC.restype = wintypes.HDC
@@ -87,6 +95,8 @@ def _screenshot(widget, path):
 
 def run(output_dir: Path) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir/'failure.txt').unlink(missing_ok=True)
+    (output_dir/'report.json').unlink(missing_ok=True)
     try:
         report = _run_checks(output_dir)
         (output_dir/'report.json').write_text(json.dumps(report, indent=2),encoding='utf-8')
@@ -117,6 +127,9 @@ def _run_checks(output_dir):
                     app.save_wiggle.set(True)
                     app._on_wiggle_changed()
                     assert app.wiggle_button.cget('state') == 'normal'
+                    _settle(app)
+                    if scale == 1.0:
+                        _screenshot(app, output_dir/f'gui-{locale}.png')
                     def apply(options):
                         app.wiggle_options = options
                         app._save_paths()
@@ -126,7 +139,6 @@ def _run_checks(output_dir):
                         assert dialog.cget('fg_color') == BG_MAIN
                         _check_children(dialog)
                         if scale == 1.0:
-                            _screenshot(app, output_dir/f'gui-{locale}.png')
                             _screenshot(dialog, output_dir/f'wiggle-{locale}.png')
                         dialog.fps_menu.set('60')
                         dialog._format_changed('GIF')
@@ -151,6 +163,9 @@ def _run_checks(output_dir):
                     assert app.window_backshift_slider.cget('state') == 'normal'
                     assert not app.error_log_lines, app.error_log_lines
                     layouts.append({'locale':locale,'scale':scale,'width':app.winfo_width(),'height':app.winfo_height()})
+                    app.geometry('1200x880')
+                    _settle(app)
+                    _check_children(app)
                 finally:
                     app.destroy()
     ctk.set_widget_scaling(1.0)

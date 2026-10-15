@@ -56,7 +56,7 @@ class SplatTriciaApp(ctk.CTk):
         ctk.set_appearance_mode("dark")
         self.title(f"{APP_NAME} – {__version__}")
         self.geometry("1280x880")
-        self.minsize(1100, 800)
+        self.minsize(1200, 880)
         self.configure(fg_color=BG_MAIN)
         icon_path = self.app_dir / "assets" / "splattricia.ico"
         if icon_path.is_file():

@@ -58,6 +58,10 @@ class WiggleDialog(ctk.CTkToplevel):
 
     def _activate(self):
         if self.winfo_exists():
+            owner = self.master
+            x = owner.winfo_rootx() + max(0, (owner.winfo_width() - self.winfo_width()) // 2)
+            y = owner.winfo_rooty() + max(0, (owner.winfo_height() - self.winfo_height()) // 2)
+            self.geometry(f"+{x}+{y}")
             self.grab_set()
             self.focus_set()
 

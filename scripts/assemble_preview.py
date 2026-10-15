@@ -1,8 +1,7 @@
-"""Assemble a source-first 1.1 test build using the verified frozen 1.0 launcher.
+"""Assemble a 1.1 test build and rebuild its EXE from the verified 1.0 dependencies.
 
-The launcher already prepends _internal/src. Native libraries and its complete
-Python dependency archive are reused without rebuilding or changing them.
-A frozen self-test must prove that the new source package is actually loaded.
+Third-party Python code, native libraries and frozen runtime hooks are retained.
+Preview.spec replaces only application modules and rebuilds a normal frozen EXE.
 """
 from __future__ import annotations
 import argparse
@@ -52,10 +51,10 @@ def assemble(base: Path, output: Path):
     app = output/'SplatTricia'
     if (app/'models/sharp_2572gikvuh.pt').exists():
         raise RuntimeError('Checkpoint must not be distributed')
-    payload = app/'_internal/src/splattricia'
-    if payload.exists():
-        raise RuntimeError('Unexpected source override in the base release')
-    shutil.copytree(ROOT/'src/splattricia',payload,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+    locales = app/'_internal/splattricia/locales'
+    locales.mkdir(parents=True,exist_ok=True)
+    for path in (ROOT/'src/splattricia/locales').glob('*.json'):
+        shutil.copy2(path,locales/path.name)
     source = app/'source'
     shutil.rmtree(source)
     source.mkdir()
@@ -86,7 +85,7 @@ def assemble(base: Path, output: Path):
         if digest(output.joinpath(*PurePosixPath(name).parts)) != expected:
             raise RuntimeError(f'Runtime changed: {name}')
     report = {'preserved_runtime_files':len(preserved),'launcher_sha256':digest(app/'SplatTricia.exe'),
-              'application_source':'_internal/src/splattricia','version':'1.1','checkpoint_included':False}
+              'application_source':'frozen application modules','version':'1.1','checkpoint_included':False}
     (output/'assembly-report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     return app
 
@@ -113,7 +112,7 @@ def package(base: Path, app: Path, destination: Path):
     if any(path.stat().st_size >= 2*1024**3 for path in files):
         raise RuntimeError('Release asset exceeds GitHub size limit')
     (destination/'SplatTricia_1.1_SHA256SUMS.txt').write_text(''.join(f'{digest(path)}  {path.name}\n' for path in files),encoding='ascii')
-    print('Three test ZIPs created; launcher and native libraries preserved.',flush=True)
+    print('Three test ZIPs created; EXE rebuilt, native dependencies preserved.',flush=True)
 
 
 if __name__=='__main__':

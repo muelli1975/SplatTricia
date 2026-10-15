@@ -26,19 +26,33 @@ jobs:
         run: gh release download v1.0 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
       - name: Assemble the test application without changing native dependencies
         run: python scripts/assemble_preview.py assemble
+      - name: Rebuild the frozen application EXE
+        run: |
+          python -m pip install --disable-pip-version-check PyInstaller==6.22.0
+          python -m PyInstaller --noconfirm --clean --distpath preview-exe --workpath build/preview Preview.spec
+          if ($LASTEXITCODE -ne 0) { throw 'EXE rebuild failed' }
+          Copy-Item -Force 'preview-exe/SplatTricia/SplatTricia.exe' 'portable/SplatTricia/SplatTricia.exe'
       - name: Test the actual portable EXE
         run: |
           $report = Join-Path $env:GITHUB_WORKSPACE 'qa'
           $exe = Join-Path $env:GITHUB_WORKSPACE 'portable/SplatTricia/SplatTricia.exe'
           $process = Start-Process -FilePath $exe -ArgumentList @('--self-test', $report) -PassThru
-          if (-not $process.WaitForExit(180000)) {
-            $process.Kill()
-            throw 'Portable application test timed out'
+          $deadline = [DateTime]::UtcNow.AddMinutes(3)
+          while (-not $process.WaitForExit(200)) {
+            $startup = 'portable/SplatTricia/splattricia_startup_error.log'
+            if (Test-Path $startup) {
+              New-Item -ItemType Directory -Force qa | Out-Null
+              Copy-Item $startup 'qa/startup-failure.txt'
+              Get-Content $startup
+              $process.Kill()
+              throw 'Portable application startup failed'
+            }
+            if ([DateTime]::UtcNow -gt $deadline) { $process.Kill(); throw 'Portable application test timed out' }
           }
           if (Test-Path 'qa/failure.txt') { Get-Content 'qa/failure.txt' }
           if ($process.ExitCode -ne 0 -or -not (Test-Path 'qa/report.json')) { throw 'Portable application test failed' }
           $result = Get-Content -Raw 'qa/report.json' | ConvertFrom-Json
-          if ($result.version -ne '1.1' -or $result.application_code -notlike '*_internal*src*splattricia*') {
+          if ($result.version -ne '1.1' -or $result.application_code -notlike '*_internal*splattricia*') {
             throw 'The EXE did not load the new application code'
           }
           Get-Content 'qa/report.json'
@@ -62,7 +76,7 @@ jobs:
 
           Download all three ZIPs and extract each into the same destination directory, merging their SplatTricia folder. The SHARP checkpoint is not included: obtain it separately from Apple's official project, read and accept the model terms, and place sharp_2572gikvuh.pt in SplatTricia/models. A compatible NVIDIA GPU is still required.
 
-          The existing frozen launcher and native runtime libraries are reused unchanged; the launcher loads the updated application package from _internal/src. The portable EXE is tested for GUI layout and actual encoding. SHARP inference and CUDA rendering have not been exercised by this build server; the appearance of the new outputs must be assessed on an NVIDIA system before a stable 1.1 release.
+          The application EXE is rebuilt with the updated program code. The existing third-party Python code and native runtime libraries are reused unchanged. The portable EXE is tested for GUI layout and actual encoding. SHARP inference and CUDA rendering have not been exercised by this build server; the appearance of the new outputs must be assessed on an NVIDIA system before a stable 1.1 release.
 
           Existing stereo geometry and controls are preserved. This is a test version, not the final 1.1 release.
           '@ | Set-Content -Encoding utf8 preview-notes.md
