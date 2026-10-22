@@ -3,6 +3,11 @@ import argparse
 import functools
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
+import hashlib
+import io
+import time
+
+from PIL import Image
 import os
 from pathlib import Path
 import threading
@@ -45,21 +50,19 @@ def main():
                         image.src = url;
                         await image.decode();
                         document.body.replaceChildren(image);
-                        const canvas = document.createElement('canvas');
-                        canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
-                        const context = canvas.getContext('2d', {willReadFrequently:true});
-                        const early = new Set(), late = new Set();
-                        for (let i=0; i<45; ++i) {
-                            await new Promise(resolve => setTimeout(resolve, 50));
-                            context.drawImage(image,0,0);
-                            const pixels = context.getImageData(0,0,canvas.width,canvas.height).data;
-                            let hash = 2166136261;
-                            for (const value of pixels) hash = Math.imul(hash ^ value,16777619);
-                            (i < 20 ? early : late).add(hash);
-                        }
-                        return {width:image.naturalWidth,height:image.naturalHeight,
-                                early_frames:early.size,late_frames:late.size};
+                        return {width:image.naturalWidth,height:image.naturalHeight};
                     }''', url)
+                    # drawImage(animatedImage) is specified to use its poster
+                    # frame. Inspect the actual compositor output instead.
+                    early, late = set(), set()
+                    started = time.monotonic()
+                    while time.monotonic() - started < 2.4:
+                        screenshot = page.locator('img').screenshot(animations='allow')
+                        with Image.open(io.BytesIO(screenshot)) as image:
+                            frame_hash = hashlib.sha256(image.convert('RGB').tobytes()).hexdigest()
+                        (early if time.monotonic() - started < 1.1 else late).add(frame_hash)
+                        time.sleep(0.05)
+                    result.update(early_frames=len(early), late_frames=len(late))
                     assert result['early_frames'] > 1 and result['late_frames'] > 1, (path, result)
                     results.append(dict(file=path.relative_to(root).as_posix(), status='passed', **result))
                 version = browser.version
