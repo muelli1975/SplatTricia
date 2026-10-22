@@ -95,10 +95,13 @@ def main():
             api('/git/refs/tags/v1.1', 'PATCH', {'sha': sha, 'force': True})
             tag_moved = True
         body = args.notes.read_text(encoding='utf-8').rstrip()
-        body += '\n\nSource included in the updated application package(s): [' + sha[:7] + '](https://github.com/' + repo + '/tree/' + sha + ').\n'
-        body += '\n## SHA-256 checksums\n\n| Package | SHA-256 |\n| --- | --- |\n'
+        body += '\n\n## Downloads and SHA-256\n\n| File | SHA-256 |\n| --- | --- |\n'
         for name, item in files.items():
-            body += '| [' + name + '](https://github.com/' + repo + '/releases/download/v1.1/' + name + ') | `' + item['digest'].split(':')[1] + '` |\n'
+            if name.endswith(('.zip', '.tar.gz')):
+                body += '| [' + name + '](https://github.com/' + repo + '/releases/download/v1.1/' + name + ') | `' + item['digest'].split(':')[1] + '` |\n'
+        for name in files:
+            if 'SHA256SUMS' in name:
+                body += '\n[Download checksum file](https://github.com/' + repo + '/releases/download/v1.1/' + name + ').\n'
         api('/releases/' + str(release['id']), 'PATCH', {'body': body, 'target_commitish': sha})
         notes_updated = True
         final = api('/releases/tags/v1.1')

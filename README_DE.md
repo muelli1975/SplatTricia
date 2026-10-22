@@ -1,8 +1,8 @@
 # SplatTricia 1.1
 
-SplatTricia 1.1 ergänzt optionale Tiefenkarten und Wiggle-Animationen. Die [bisherige 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) bleibt verfügbar.
+[Downloads und SHA-256](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1) · [English](README.md)
 
-[English documentation](README.md)
+SplatTricia 1.1 ergänzt optionale Tiefenkarten und Wiggle-Animationen. Die [bisherige 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) bleibt verfügbar.
 
 SplatTricia ist ein lokales Windows-Werkzeug zur automatischen Konvertierung einzelner 2D-Bilder oder ganzer Bildordner in Stereo-3D. Aus jedem Bild werden ein paralleles Side-by-Side-Stereobild (SBS) und wahlweise eine Farb- oder Graustufen-Anaglyphe erzeugt.
 
@@ -38,6 +38,8 @@ Automatische 2D-zu-3D-Konvertierung bleibt eine geometrische Schätzung. Für Pr
 - **Tiefenkarte als PNG speichern:** relative inverse Tiefe mit 16 Bit, hell nah/dunkel fern, aus der ursprünglichen mittigen Perspektive. Ablage unter `depth_maps`, in den Pixelmaßen des verarbeiteten Einzelbildes. Stereoregler und Vorhänge verändern die Karte nicht.
 - **Wiggle-Animation speichern:** Ablage unter `wiggle`. **Einstellungen…** öffnet den Dialog in Programmfarben für Format, maximale Bildgröße, Bildrate und Zyklusdauer. Bildgröße und Bildrate werden je Format gespeichert; die Zyklusdauer gilt für alle Formate.
 - MP4: H.264 CRF18/slow, 8 Bit und 4:2:0, 30/60 fps, maximal 720/1080/2160 Pixel Bildhöhe, fünf Zyklen.
+- WebP: Qualität 85, 30/60 fps, maximal 720/1080/2160 Pixel Bildhöhe (Standard: 1080p/30 fps), Endlosschleife.
+- AVIF: Qualität 60, 4:4:4, gleiche Größen und Bildraten (Standard: 1080p/30 fps), Endlosschleife.
 - GIF: 10/15/20/25 fps (Standard: 15 fps), standardmäßig maximal 800 Pixel lange Seite, Endlosschleife.
 - PNG-Bildfolge: 30/60 fps, maximal 1080/2160 Pixel Bildhöhe, ein nummerierter Zyklus je Ausgangsbild.
 
@@ -69,9 +71,9 @@ Der von Christoph Müller erstellte SplatTricia-Quellcode und die eigene Dokumen
 
 Alle drei ZIP-Dateien aus dem [Release SplatTricia 1.1](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1) herunterladen:
 
-- `SplatTricia_1.1.zip` — Programm, Werkzeuge, Dokumentation und Lizenzen
-- `SplatTricia_1.1_Runtime_1.zip` — Laufzeitbibliotheken, Teil 1
-- `SplatTricia_1.1_Runtime_2.zip` — Laufzeitbibliotheken, Teil 2
+- [SplatTricia_1.1.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1.zip) — Programm, Werkzeuge, Dokumentation und Lizenzen
+- [SplatTricia_1.1_Runtime_1.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_Runtime_1.zip) — Laufzeitbibliotheken, Teil 1
+- [SplatTricia_1.1_Runtime_2.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_Runtime_2.zip) — Laufzeitbibliotheken, Teil 2
 
 1. **Jedes ZIP in denselben Zielordner entpacken** und die Inhalte des gemeinsamen Unterordners `SplatTricia` zusammenführen. Die ZIPs nicht in getrennte Ordner mit den jeweiligen Archivnamen entpacken.
 2. Den SHARP-Checkpoint selbst von [Apples offizieller Projektseite](https://github.com/apple-aiml-research/ml-sharp) beziehen. Vor dem Download Apples Modellbedingungen lesen und akzeptieren.
@@ -80,4 +82,4 @@ Alle drei ZIP-Dateien aus dem [Release SplatTricia 1.1](https://github.com/muell
 
 Alle Laufzeitbibliotheken sind enthalten. Python, CUDA-Toolkit und Build-Werkzeuge müssen nicht separat installiert werden. Nach der Einrichtung funktioniert die Verarbeitung offline.
 
-Die nativen Laufzeitbibliotheken werden aus der 1.0 übernommen. `SplatTricia_1.1_SHA256SUMS.txt` enthält die Prüfsummen aller drei ZIPs.
+Die nativen Laufzeitbibliotheken werden aus der 1.0 übernommen. [SplatTricia_1.1_SHA256SUMS.txt](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_SHA256SUMS.txt) enthält die Prüfsummen aller drei ZIPs.

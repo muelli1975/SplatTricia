@@ -1,8 +1,8 @@
 # SplatTricia 1.1
 
-SplatTricia 1.1 adds optional depth maps and wiggle animations. The [previous 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) remains available.
+[Downloads and SHA-256](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1) · [Deutsch](README_DE.md)
 
-[Deutsch](README_DE.md)
+SplatTricia 1.1 adds optional depth maps and wiggle animations. The [previous 1.0](https://github.com/muelli1975/SplatTricia/releases/tag/v1.0) remains available.
 
 SplatTricia is a local Windows tool for automatically converting individual 2D images or complete image folders into stereo 3D. Each image produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
 
@@ -38,8 +38,8 @@ Automatic 2D-to-3D conversion remains a geometric estimate. For projection or ot
 - **Save depth map as PNG:** 16-bit relative inverse depth, white near/black far, from the original central view. Saved under `depth_maps`, matching the processed single-image dimensions. Stereo controls and curtains do not alter it.
 - **Save wiggle animation:** saved under `wiggle`. **Settings…** opens the themed editor for format, maximum image size, frame rate and cycle duration. Image size and frame rate are remembered separately per format; cycle duration is shared.
 - MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum 720/1080/2160 pixels high, five cycles.
-- WebP: fixed quality 85, 30/60 fps, maximum height 720/1080/2160 pixels (default 1080p/30 fps), endless loop.
-- AVIF: fixed quality 60, 4:4:4, encoder speed 6, same sizes/frame rates and default 1080p/30 fps, endless loop.
+- WebP: quality 85, 30/60 fps, maximum height 720/1080/2160 pixels (default 1080p/30 fps), endless loop.
+- AVIF: quality 60, 4:4:4, same sizes/frame rates and default 1080p/30 fps, endless loop.
 - GIF: 10/15/20/25 fps (default: 15 fps), maximum 800 pixels on the long edge by default, endless loop.
 - PNG sequence: 30/60 fps, maximum 1080/2160 pixels high, one numbered cycle per source image.
 
@@ -71,9 +71,9 @@ SplatTricia source code and original documentation created by Christoph Müller 
 
 Download all three ZIP files from the [SplatTricia 1.1 release](https://github.com/muelli1975/SplatTricia/releases/tag/v1.1):
 
-- `SplatTricia_1.1.zip` — application, tools, documentation and licenses
-- `SplatTricia_1.1_Runtime_1.zip` — runtime libraries, part 1
-- `SplatTricia_1.1_Runtime_2.zip` — runtime libraries, part 2
+- [SplatTricia_1.1.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1.zip) — application, tools, documentation and licenses
+- [SplatTricia_1.1_Runtime_1.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_Runtime_1.zip) — runtime libraries, part 1
+- [SplatTricia_1.1_Runtime_2.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_Runtime_2.zip) — runtime libraries, part 2
 
 1. Extract **every ZIP into the same destination directory**, merging their shared `SplatTricia` subfolder. Do not extract them into separate folders named after each archive.
 2. Obtain the SHARP checkpoint yourself from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp). Read and accept Apple's model terms before downloading.
@@ -82,4 +82,4 @@ Download all three ZIP files from the [SplatTricia 1.1 release](https://github.c
 
 All runtime libraries are included. No separate Python installation, CUDA toolkit or build tools are required. Processing works offline after setup.
 
-The native runtime libraries are reused from 1.0. `SplatTricia_1.1_SHA256SUMS.txt` provides checksums for all three ZIPs.
+The native runtime libraries are reused from 1.0. [SplatTricia_1.1_SHA256SUMS.txt](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_SHA256SUMS.txt) provides checksums for all three ZIPs.
