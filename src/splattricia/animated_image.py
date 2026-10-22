@@ -66,8 +66,10 @@ def encode_animation(paths: list[Path], output: Path, kind: str, fps: int,
     durations = [end - start for start, end in zip(ticks, ticks[1:])]
     settings = dict(save_all=True, duration=durations)
     if kind == "webp":
-        settings.update(quality=85, lossless=False, method=4, loop=0,
-                        minimize_size=True, allow_mixed=False)
+        # Retain Pillow's regular keyframes: disabling them can leave stale
+        # blocks in slowly changing skies and skin tones.
+        settings.update(quality=80, lossless=False, method=4, loop=0,
+                        minimize_size=False, allow_mixed=False)
     else:
         # libavif's sequence writer defaults to infinite repetition. Pillow
         # exposes no AVIF loop parameter; package tests inspect its BMFF flags.

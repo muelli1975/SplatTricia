@@ -5,7 +5,7 @@ import assemble_preview
 
 
 assemble_preview.BASE_PACKAGES = {
-    'SplatTricia_1.1.zip': 'c7a5f334e5268ef88cdfe575ac97684e6d56ddad48bfe8ba67c25ce8573d32e2',
+    'SplatTricia_1.1.zip': 'eefa090ee0f3bccb6ba22c56c0037f7d70084bb3ea57063f1d7937c11735124e',
     'SplatTricia_1.1_Runtime_1.zip': '99369b6502061bcf03829c0ad17b5ca8a3c74913ecae94d237765c1cdb95d8e8',
     'SplatTricia_1.1_Runtime_2.zip': '7cfa03d01433706345b95d9c04b819ea29381c2a0123a0b61f0b005cbfacb9be',
 }

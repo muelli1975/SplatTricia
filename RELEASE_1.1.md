@@ -2,6 +2,7 @@
 
 - Add optional 16-bit depth-map PNG export.
 - Add wiggle animations as MP4, looping GIF, WebP, AVIF or PNG frame sequences.
+- Improve animated WebP compression and reduce block artifacts in smooth areas.
 - Save animation size and frame rate separately for each format.
 - Fix window resizing when enabling wiggle export or starting processing.
 

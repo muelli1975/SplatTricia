@@ -13,6 +13,36 @@ from splattricia.animation_checks import check_animation
 
 
 class AnimatedImageTests(unittest.TestCase):
+    def test_webp_slow_gradient_does_not_accumulate_stale_blocks(self):
+        """Small per-frame colour changes must not freeze a smooth background."""
+        from splattricia.animated_image import encode_animation
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths, reference_means = [], []
+            for index in range(60):
+                ramp = np.linspace(75, 100, 320, dtype=np.float32)[None, :] + round(index / 3)
+                rgb = np.zeros((192, 320, 3), dtype=np.uint8)
+                rgb[:] = np.stack((ramp + 7, ramp + 1, ramp), axis=2).astype(np.uint8)
+                # Keep every frame distinct while the unobstructed background
+                # changes by less than one colour level per frame.
+                rgb[5:16, 2 * index:2 * index + 10] = (220, 25, 15)
+                reference_means.append(rgb[40:160, 160:300].mean(axis=(0, 1)))
+                path = root / f'{index:03d}.png'
+                with Image.fromarray(rgb) as image:
+                    image.save(path)
+                paths.append(path)
+            output = root / 'gradient.webp'
+            encode_animation(paths, output, 'webp', 30, lambda: None)
+            check_animation(output, (320, 192), 2000, expected_frames=60)
+            with Image.open(output) as animation:
+                for index, reference in enumerate(reference_means):
+                    animation.seek(index)
+                    actual = np.asarray(animation.convert('RGB'))[40:160, 160:300].mean(axis=(0, 1))
+                    # Permit ordinary lossy quantization, but not the roughly
+                    # 20-level drift produced when keyframes are disabled.
+                    self.assertLessEqual(float(np.abs(actual - reference).max()), 4.0,
+                                         f'Background drift in frame {index}')
+
     @staticmethod
     def view(weight):
         rgb = np.zeros((47, 65, 3), dtype=np.uint8)
