@@ -63,7 +63,7 @@ jobs:
             throw 'The EXE did not load the new application code'
           }
           Get-Content 'qa/report.json'
-      - name: Play packaged WebP and AVIF in the installed browser
+      - name: Play packaged AVIF in the installed browser
         run: |
           python -m pip install playwright
           python scripts/check_browser_animations.py qa --output qa/browser-animations.json

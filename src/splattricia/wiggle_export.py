@@ -111,7 +111,7 @@ def export_wiggle(render_view: Callable[[float], np.ndarray], source_size: tuple
                 _replace_with_retry(temporary, output)
             finally:
                 temporary.unlink(missing_ok=True)
-        elif options.format in {"webp", "avif"}:
+        elif options.format == "avif":
             from .animated_image import encode_animation
             temporary = work / ("finished." + options.format)
             try:

@@ -14,34 +14,31 @@ class WiggleOptions:
     video_height: int = 1080
     gif_long_side: int = 800
     png_height: int = 1080
-    webp_fps: int = 30
     avif_fps: int = 30
-    webp_height: int = 1080
     avif_height: int = 1080
     cycle_seconds: float = 2.0
 
     @property
     def fps(self) -> int:
         return {"mp4": self.video_fps, "gif": self.gif_fps, "png": self.png_fps,
-                "webp": self.webp_fps, "avif": self.avif_fps}[self.format]
+                "avif": self.avif_fps}[self.format]
 
     @property
     def frame_count(self) -> int:
         return round(self.cycle_seconds * self.fps)
 
     def validate(self) -> None:
-        if self.format not in {"mp4", "gif", "png", "webp", "avif"}:
+        if self.format not in {"mp4", "gif", "png", "avif"}:
             raise ValueError("Ungültiges Wiggle-Format / invalid wiggle format.")
-        for value in (self.video_fps, self.png_fps, self.webp_fps, self.avif_fps):
+        for value in (self.video_fps, self.png_fps, self.avif_fps):
             if type(value) is not int or value not in (30, 60):
-                raise ValueError("MP4/PNG/WebP/AVIF: 30 oder 60 fps wählen / choose 30 or 60 fps.")
+                raise ValueError("MP4/PNG/AVIF: 30 oder 60 fps wählen / choose 30 or 60 fps.")
         if type(self.gif_fps) is not int or self.gif_fps not in (10, 15, 20, 25):
             raise ValueError("GIF: 10, 15, 20 oder 25 fps wählen / choose 10, 15, 20 or 25 fps.")
         if type(self.video_height) is not int or self.video_height not in (720, 1080, 2160):
             raise ValueError("MP4: 720, 1080 oder 2160 Pixel Bildhöhe wählen.")
-        for value in (self.webp_height, self.avif_height):
-            if type(value) is not int or value not in (720, 1080, 2160):
-                raise ValueError("WebP/AVIF: 720, 1080 oder 2160 Pixel Bildhöhe wählen.")
+        if type(self.avif_height) is not int or self.avif_height not in (720, 1080, 2160):
+            raise ValueError("AVIF: 720, 1080 oder 2160 Pixel Bildhöhe wählen.")
         if type(self.png_height) is not int or self.png_height not in (1080, 2160):
             raise ValueError("PNG: 1080 oder 2160 Pixel Bildhöhe wählen.")
         if type(self.gif_long_side) is not int or not 64 <= self.gif_long_side <= 2160:
@@ -57,7 +54,11 @@ class WiggleOptions:
     @classmethod
     def from_settings(cls, value) -> "WiggleOptions":
         try:
-            result = cls(**{f.name: value[f.name] for f in fields(cls) if f.name in value})
+            settings = {f.name: value[f.name] for f in fields(cls) if f.name in value}
+            # Retain the remaining preferences when a removed format was saved.
+            if settings.get("format") == "webp":
+                settings["format"] = cls().format
+            result = cls(**settings)
             result.validate()
             return result
         except (TypeError, ValueError, KeyError):
@@ -68,7 +69,7 @@ class WiggleOptions:
             scale = min(1.0, self.gif_long_side / max(width, height))
         else:
             limit = {"mp4": self.video_height, "png": self.png_height,
-                     "webp": self.webp_height, "avif": self.avif_height}[self.format]
+                     "avif": self.avif_height}[self.format]
             scale = min(1.0, limit / height)
         w, h = max(1, round(width * scale)), max(1, round(height * scale))
         # MP4 encoding pads odd dimensions by one pixel; never crop the image.

@@ -22,7 +22,7 @@ class WiggleDialog(ctk.CTkToplevel):
         self.configure(fg_color=BG_MAIN)
         self.transient(owner)
         self.grid_columnconfigure(1, weight=1)
-        self.formats = {"mp4": "MP4", "gif": "GIF", "webp": "WebP", "avif": "AVIF", "png": self.tr("wiggle.png_sequence")}
+        self.formats = {"mp4": "MP4", "gif": "GIF", "avif": "AVIF", "png": self.tr("wiggle.png_sequence")}
         self.labels = []
         for row, key in enumerate(("wiggle.format", "wiggle.size_height", "wiggle.fps", "wiggle.duration")):
             label = ctk.CTkLabel(self, text=self.tr(key), text_color=TEXT,
@@ -68,7 +68,7 @@ class WiggleDialog(ctk.CTkToplevel):
     def _capture(self):
         fmt = self.options.format
         updates = {f"{fmt if fmt != 'mp4' else 'video'}_fps": int(self.fps_menu.get())}
-        updates[{"mp4": "video_height", "gif": "gif_long_side", "png": "png_height", "webp": "webp_height", "avif": "avif_height"}[fmt]] = int(self.size_menu.get())
+        updates[{"mp4": "video_height", "gif": "gif_long_side", "png": "png_height", "avif": "avif_height"}[fmt]] = int(self.size_menu.get())
         self.options = replace(self.options, **updates)
 
     def _format_changed(self, choice):
@@ -80,10 +80,10 @@ class WiggleDialog(ctk.CTkToplevel):
         is_gif = self.options.format == "gif"
         self.labels[1].configure(text=self.tr("wiggle.size_long" if is_gif else "wiggle.size_height"))
         sizes = (["640", "800", "1024"] if is_gif else
-                 ["720", "1080", "2160"] if self.options.format in {"mp4", "webp", "avif"} else ["1080", "2160"])
+                 ["720", "1080", "2160"] if self.options.format in {"mp4", "avif"} else ["1080", "2160"])
         self.size_menu.configure(values=sizes)
         self.size_menu.set(str({"mp4": self.options.video_height, "gif": self.options.gif_long_side,
-                                "png": self.options.png_height, "webp": self.options.webp_height,
+                                "png": self.options.png_height,
                                 "avif": self.options.avif_height}[self.options.format]))
         self.fps_menu.configure(values=["10", "15", "20", "25"] if is_gif else ["30", "60"])
         self.fps_menu.set(str(self.options.fps))

@@ -1,4 +1,4 @@
-"""Play packaged WebP/AVIF exports in a real Chromium browser (development only)."""
+"""Play packaged AVIF exports in a real Chromium browser (development only)."""
 import argparse
 import functools
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -19,8 +19,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     root = args.directory.resolve()
-    paths = sorted(p for p in root.rglob('*') if p.suffix in ('.webp', '.avif'))
-    assert {p.suffix for p in paths} == {'.webp', '.avif'}, 'Both export formats are required'
+    paths = sorted(p for p in root.rglob('*') if p.suffix == '.avif')
+    assert paths, 'An AVIF export is required'
     from playwright.sync_api import sync_playwright
     candidates = [Path(os.environ.get(key, 'C:/Program Files')) / suffix
                   for key in ('ProgramFiles', 'ProgramFiles(x86)', 'LOCALAPPDATA')

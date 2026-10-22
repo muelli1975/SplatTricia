@@ -49,8 +49,6 @@ def check_animation(path, size, duration_ms, expected_frames=None):
         frames = image.n_frames
         if expected_frames is not None:
             assert frames == expected_frames, (frames, expected_frames)
-        if path.suffix == '.webp':
-            assert image.info['loop'] == 0
         for index in range(frames):
             image.seek(index)
             image.load()

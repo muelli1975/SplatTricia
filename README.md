@@ -38,7 +38,6 @@ Automatic 2D-to-3D conversion remains a geometric estimate. For projection or ot
 - **Save depth map as PNG:** 16-bit relative inverse depth, white near/black far, from the original central view. Saved under `depth_maps`, matching the processed single-image dimensions. Stereo controls and curtains do not alter it.
 - **Save wiggle animation:** saved under `wiggle`. **Settings…** opens the themed editor for format, maximum image size, frame rate and cycle duration. Image size and frame rate are remembered separately per format; cycle duration is shared.
 - MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum 720/1080/2160 pixels high, five cycles.
-- WebP: quality 80, 30/60 fps, maximum height 720/1080/2160 pixels (default 1080p/30 fps), endless loop.
 - AVIF: quality 60, 4:4:4, same sizes/frame rates and default 1080p/30 fps, endless loop.
 - GIF: 10/15/20/25 fps (default: 15 fps), maximum 800 pixels on the long edge by default, endless loop.
 - PNG sequence: 30/60 fps, maximum 1080/2160 pixels high, one numbered cycle per source image.

@@ -13,36 +13,6 @@ from splattricia.animation_checks import check_animation
 
 
 class AnimatedImageTests(unittest.TestCase):
-    def test_webp_slow_gradient_does_not_accumulate_stale_blocks(self):
-        """Small per-frame colour changes must not freeze a smooth background."""
-        from splattricia.animated_image import encode_animation
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            paths, reference_means = [], []
-            for index in range(60):
-                ramp = np.linspace(75, 100, 320, dtype=np.float32)[None, :] + round(index / 3)
-                rgb = np.zeros((192, 320, 3), dtype=np.uint8)
-                rgb[:] = np.stack((ramp + 7, ramp + 1, ramp), axis=2).astype(np.uint8)
-                # Keep every frame distinct while the unobstructed background
-                # changes by less than one colour level per frame.
-                rgb[5:16, 2 * index:2 * index + 10] = (220, 25, 15)
-                reference_means.append(rgb[40:160, 160:300].mean(axis=(0, 1)))
-                path = root / f'{index:03d}.png'
-                with Image.fromarray(rgb) as image:
-                    image.save(path)
-                paths.append(path)
-            output = root / 'gradient.webp'
-            encode_animation(paths, output, 'webp', 30, lambda: None)
-            check_animation(output, (320, 192), 2000, expected_frames=60)
-            with Image.open(output) as animation:
-                for index, reference in enumerate(reference_means):
-                    animation.seek(index)
-                    actual = np.asarray(animation.convert('RGB'))[40:160, 160:300].mean(axis=(0, 1))
-                    # Permit ordinary lossy quantization, but not the roughly
-                    # 20-level drift produced when keyframes are disabled.
-                    self.assertLessEqual(float(np.abs(actual - reference).max()), 4.0,
-                                         f'Background drift in frame {index}')
-
     @staticmethod
     def view(weight):
         rgb = np.zeros((47, 65, 3), dtype=np.uint8)
@@ -53,11 +23,10 @@ class AnimatedImageTests(unittest.TestCase):
     def test_new_settings_keep_old_defaults_and_remember_each_format(self):
         old = WiggleOptions.from_settings(dict(format='mp4', video_height=1080, video_fps=60))
         self.assertEqual((old.video_height, old.video_fps), (1080, 60))
-        self.assertEqual((old.webp_height, old.avif_height), (1080, 1080))
-        options = replace(old, format='avif', avif_height=2160, avif_fps=60,
-                          webp_height=1080, webp_fps=30)
+        self.assertEqual(old.avif_height, 1080)
+        options = replace(old, format='avif', avif_height=2160, avif_fps=60)
         self.assertEqual(WiggleOptions.from_settings(options.to_settings()), options)
-        for fmt in ('webp', 'avif'):
+        for fmt in ('avif',):
             for height in (720, 1080, 2160):
                 option = replace(old, format=fmt, **{fmt + '_height': height})
                 option.validate()
@@ -66,8 +35,24 @@ class AnimatedImageTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 replace(old, **{fmt + '_height': 800}).validate()
 
+    def test_removed_saved_format_preserves_other_preferences(self):
+        saved = dict(format='webp', webp_height=2160, webp_fps=60,
+                     video_height=2160, video_fps=60, gif_fps=25,
+                     avif_height=720, avif_fps=60, cycle_seconds=3.0)
+        original = saved.copy()
+        restored = WiggleOptions.from_settings(saved)
+        self.assertEqual(restored.format, 'mp4')
+        self.assertEqual((restored.video_height, restored.video_fps), (2160, 60))
+        self.assertEqual((restored.avif_height, restored.avif_fps), (720, 60))
+        self.assertEqual((restored.gif_fps, restored.cycle_seconds), (25, 3.0))
+        self.assertEqual(saved, original)
+        self.assertNotIn('webp_height', restored.to_settings())
+        self.assertNotIn('webp_fps', restored.to_settings())
+        with self.assertRaises(ValueError):
+            WiggleOptions(format='webp').validate()
+
     def test_animation_timing_return_path_and_odd_edges(self):
-        for fmt in ('webp', 'avif'):
+        for fmt in ('avif',):
             for fps in (30, 60):
                 with self.subTest(fmt=fmt, fps=fps), tempfile.TemporaryDirectory() as temp:
                     root = Path(temp)
@@ -87,7 +72,7 @@ class AnimatedImageTests(unittest.TestCase):
                     self.assertFalse(list((root / '_temp').iterdir()))
 
     def test_cancel_during_image_encoding_preserves_existing_output(self):
-        for fmt in ('webp', 'avif'):
+        for fmt in ('avif',):
             with self.subTest(fmt=fmt), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp); output = root / ('animation.' + fmt)
                 output.write_bytes(b'previous completed animation')

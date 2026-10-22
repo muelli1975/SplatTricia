@@ -1,8 +1,7 @@
 # SplatTricia 1.1
 
 - Add optional 16-bit depth-map PNG export.
-- Add wiggle animations as MP4, looping GIF, WebP, AVIF or PNG frame sequences.
-- Improve animated WebP compression and reduce block artifacts in smooth areas.
+- Add wiggle animations as MP4, looping GIF, AVIF or PNG frame sequences.
 - Save animation size and frame rate separately for each format.
 - Fix window resizing when enabling wiggle export or starting processing.
 

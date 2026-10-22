@@ -1,4 +1,4 @@
-"""Fixed-quality WebP/AVIF encoding through Pillow's animation writers."""
+"""Fixed-quality AVIF encoding through Pillow's animation writer."""
 from __future__ import annotations
 
 import os
@@ -59,22 +59,16 @@ class _RenderedSequence(Image.Image):
 def encode_animation(paths: list[Path], output: Path, kind: str, fps: int,
                      check, progress=None) -> None:
     """Write one infinitely repeated cycle, on a cumulative millisecond grid."""
-    if kind not in {"webp", "avif"}:
+    if kind != "avif":
         raise ValueError("Unsupported animated image format")
     # Rounding cumulative timestamps avoids 30/60-fps timing drift.
     ticks = [round(index * 1000 / fps) for index in range(len(paths) + 1)]
     durations = [end - start for start, end in zip(ticks, ticks[1:])]
     settings = dict(save_all=True, duration=durations)
-    if kind == "webp":
-        # Retain Pillow's regular keyframes: disabling them can leave stale
-        # blocks in slowly changing skies and skin tones.
-        settings.update(quality=80, lossless=False, method=4, loop=0,
-                        minimize_size=False, allow_mixed=False)
-    else:
-        # libavif's sequence writer defaults to infinite repetition. Pillow
-        # exposes no AVIF loop parameter; package tests inspect its BMFF flags.
-        settings.update(quality=60, subsampling="4:4:4", speed=6, range="full", codec="aom",
-                        max_threads=min(8, os.cpu_count() or 1))
+    # libavif's sequence writer defaults to infinite repetition. Pillow
+    # exposes no AVIF loop parameter; package tests inspect its BMFF flags.
+    settings.update(quality=60, subsampling="4:4:4", speed=6, range="full", codec="aom",
+                    max_threads=min(8, os.cpu_count() or 1))
     with _RenderedSequence(paths, check, progress) as sequence:
         sequence.save(output, format=kind.upper(), **settings)
     check()

@@ -90,7 +90,6 @@ Zusätzliche Ausgaben in 1.1
 - Tiefenkarte als PNG speichern: relative inverse Tiefe mit 16 Bit, hell nah/dunkel fern, aus der ursprünglichen mittigen Perspektive. Ablage unter depth_maps, in den Pixelmaßen des verarbeiteten Einzelbildes. Stereoregler und Vorhänge verändern die Karte nicht.
 - Wiggle-Animation speichern: Ablage unter wiggle. Einstellungen… öffnet den Dialog in Programmfarben für Format, maximale Bildgröße, Bildrate und Zyklusdauer. Bildgröße und Bildrate werden je Format gespeichert; die Zyklusdauer gilt für alle Formate.
 - MP4: H.264 CRF18/slow, 8 Bit und 4:2:0, 30/60 fps, maximal 720/1080/2160 Pixel Bildhöhe, fünf Zyklen.
-- WebP: Qualität 80, 30/60 fps, maximal 720/1080/2160 Pixel Bildhöhe (Standard 1080p/30 fps), Endlosschleife.
 - AVIF: Qualität 60, 4:4:4, gleiche Größen/Bildraten und Standard 1080p/30 fps, Endlosschleife.
 - GIF: 10/15/20/25 fps (Standard: 15 fps), standardmäßig maximal 800 Pixel lange Seite, Endlosschleife.
 - PNG-Bildfolge: 30/60 fps, maximal 1080/2160 Pixel Bildhöhe, ein nummerierter Zyklus je Ausgangsbild.
