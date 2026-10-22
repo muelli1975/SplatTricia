@@ -271,7 +271,7 @@ def _run_checks(output_dir):
             for fps in (30,60):
                 options = WiggleOptions(format=kind,cycle_seconds=1,**{kind+'_fps':fps})
                 path = output_dir/f'animation-{fps}.{kind}'
-                export_wiggle(view,(64,47),options,path,work/'_temp')
+                export_wiggle(view,(64,47),options,path,output_dir/'_temp')
                 animated_checks.append(check_animation(path,(64,47),1000))
         export_wiggle(view,(64,47),WiggleOptions(format='png',cycle_seconds=1),work/'frames',work/'_temp')
         assert len(list((work/'frames').glob('*.png'))) == 30
