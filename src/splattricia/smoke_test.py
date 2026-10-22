@@ -187,11 +187,13 @@ def _run_checks(output_dir):
                             _screenshot(dialog, output_dir/f'wiggle-{locale}.png')
                         dialog.fps_menu.set('60')
                         for choice in ('WebP','AVIF'):
+                            dialog.format_menu.set(choice)
                             dialog._format_changed(choice)
                             assert dialog.size_menu.get() == '1080'
                             assert dialog.fps_menu.get() == '30'
                             assert dialog.size_menu.cget('values') == ['720','1080','2160']
                             dialog.size_menu.set('2160'); dialog.fps_menu.set('60')
+                            _settle(app)
                             _check_children(dialog)
                             if scale == 1.0:
                                 _screenshot(dialog, output_dir/f'wiggle-{choice}-{locale}.png')
