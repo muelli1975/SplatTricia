@@ -107,6 +107,8 @@
   "wiggle.apply": "Übernehmen",
   "wiggle.hint_mp4": "Die MP4 enthält fünf Pendelzyklen. Kleinere Bilder werden nicht vergrößert.",
   "wiggle.hint_gif": "GIF wird als Endlosschleife gespeichert. Kleinere Bilder werden nicht vergrößert.",
+  "wiggle.hint_webp": "WebP wird als Endlosschleife gespeichert. Kleinere Bilder werden nicht vergrößert.",
+  "wiggle.hint_avif": "AVIF wird als Endlosschleife gespeichert. Kleinere Bilder werden nicht vergrößert.",
   "wiggle.hint_png": "Ein Pendelzyklus als nummerierte PNG-Bildfolge. Kleinere Bilder werden nicht vergrößert.",
   "wiggle.invalid_duration": "Bitte 0,5 bis 30 Sekunden eingeben; die Dauer muss eine ganze Bildanzahl ergeben.",
   "progress.depth_map": "Bild {current}/{total}: Tiefenkarte wird gespeichert …",

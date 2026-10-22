@@ -111,6 +111,16 @@ def export_wiggle(render_view: Callable[[float], np.ndarray], source_size: tuple
                 _replace_with_retry(temporary, output)
             finally:
                 temporary.unlink(missing_ok=True)
+        elif options.format in {"webp", "avif"}:
+            from .animated_image import encode_animation
+            temporary = work / ("finished." + options.format)
+            try:
+                encode_animation(sequence, temporary, options.format, options.fps,
+                                 lambda: check_cancelled(cancel), progress)
+                check_cancelled(cancel)
+                _replace_with_retry(temporary, output)
+            finally:
+                temporary.unlink(missing_ok=True)
         elif options.format == "gif":
             # A shared palette prevents per-frame palette changes. Construct it
             # from small samples of all distinct views, not just the first image.

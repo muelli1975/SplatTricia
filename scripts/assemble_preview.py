@@ -97,13 +97,13 @@ def assemble(base: Path, output: Path, stable: bool = False):
     return app
 
 
-def package(base: Path, app: Path, destination: Path):
+def package(base: Path, app: Path, destination: Path, base_version="1.0"):
     destination.mkdir(parents=True,exist_ok=False)
     runtime = set()
     application_resources = {f'SplatTricia/_internal/splattricia/locales/{path.name}'
                              for path in (ROOT/'src/splattricia/locales').glob('*.json')}
     for index in (1,2):
-        old = base/f'SplatTricia_1.0_Runtime_{index}.zip'
+        old = base/f'SplatTricia_{base_version}_Runtime_{index}.zip'
         new = destination/f'SplatTricia_1.1_Runtime_{index}.zip'
         shutil.copyfile(old,new)
         with zipfile.ZipFile(new) as archive:

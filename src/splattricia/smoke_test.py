@@ -186,6 +186,15 @@ def _run_checks(output_dir):
                         if scale == 1.0:
                             _screenshot(dialog, output_dir/f'wiggle-{locale}.png')
                         dialog.fps_menu.set('60')
+                        for choice in ('WebP','AVIF'):
+                            dialog._format_changed(choice)
+                            assert dialog.size_menu.get() == '1080'
+                            assert dialog.fps_menu.get() == '30'
+                            assert dialog.size_menu.cget('values') == ['720','1080','2160']
+                            dialog.size_menu.set('2160'); dialog.fps_menu.set('60')
+                            _check_children(dialog)
+                            if scale == 1.0:
+                                _screenshot(dialog, output_dir/f'wiggle-{choice}-{locale}.png')
                         dialog._format_changed('GIF')
                         assert dialog.fps_menu.cget('values') == ['10','15','20','25']
                         assert dialog.fps_menu.get() == '15'
@@ -199,6 +208,8 @@ def _run_checks(output_dir):
                     saved = WiggleOptions.from_settings(load_settings(root/'settings.json')['wiggle'])
                     assert saved.format == 'gif' and saved.gif_fps == 25 and saved.video_fps == 60
                     assert saved.video_height == 720
+                    assert saved.webp_height == saved.avif_height == 2160
+                    assert saved.webp_fps == saved.avif_fps == 60
                     # Exercise the actual Start callback without SHARP/model
                     # execution. Placeholders live only in this disposable root.
                     (root/'models').mkdir()
@@ -254,6 +265,14 @@ def _run_checks(output_dir):
                     image.seek(frame_index)
                     duration+=image.info['duration']
                 assert duration==1000
+        from .animation_checks import check_animation
+        animated_checks = []
+        for kind in ('webp','avif'):
+            for fps in (30,60):
+                options = WiggleOptions(format=kind,cycle_seconds=1,**{kind+'_fps':fps})
+                path = output_dir/f'animation-{fps}.{kind}'
+                export_wiggle(view,(64,47),options,path,work/'_temp')
+                animated_checks.append(check_animation(path,(64,47),1000))
         export_wiggle(view,(64,47),WiggleOptions(format='png',cycle_seconds=1),work/'frames',work/'_temp')
         assert len(list((work/'frames').glob('*.png'))) == 30
         path = work/'depth.png'
@@ -262,5 +281,6 @@ def _run_checks(output_dir):
             assert np.asarray(image).tolist()==[[65535,21845,0]]
     return {'version':__version__,'application_code':str(Path(gui.__file__).resolve()),
             'gui_layouts':layouts,'layout_transitions':'wiggle on/off, Start, busy, long status, idle',
-            'encoder_tests':'MP4 30/60, GIF 10/15/20/25, PNG sequence, 16-bit depth PNG',
+            'animated_images':animated_checks,
+            'encoder_tests':'WebP/AVIF 30/60, MP4 30/60, GIF 10/15/20/25, PNG sequence, 16-bit depth PNG',
             'cuda_inference_tested':False}

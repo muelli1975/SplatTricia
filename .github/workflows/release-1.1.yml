@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: splattricia-release-1.1
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   release:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Release SplatTricia 1.1')
@@ -24,9 +24,15 @@ jobs:
       - name: Download verified existing runtime packages
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download v1.0 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
+        run: gh release download v1.1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
       - name: Assemble the test application without changing native dependencies
-        run: python scripts/assemble_preview.py assemble --stable
+        run: python scripts/assemble_animation_update.py assemble
+      - name: Check export source with the unchanged Pillow version
+        run: |
+          python -m pip install numpy Pillow==11.3.0 imageio-ffmpeg==0.6.0 pytest
+          $env:PYTHONPATH = "$pwd/src"
+          python -m pytest -q tests/test_exports.py tests/test_animated_images.py tests/test_release_update.py
+          if ($LASTEXITCODE -ne 0) { throw 'Export source checks failed' }
       - name: Rebuild the frozen application EXE
         run: |
           python -m pip install --disable-pip-version-check PyInstaller==6.22.0
@@ -57,6 +63,11 @@ jobs:
             throw 'The EXE did not load the new application code'
           }
           Get-Content 'qa/report.json'
+      - name: Play packaged WebP and AVIF in the installed browser
+        run: |
+          python -m pip install playwright
+          python scripts/check_browser_animations.py qa --output qa/browser-animations.json
+          if ($LASTEXITCODE -ne 0) { throw 'Browser animation checks failed' }
       - name: Preserve GUI screenshots and test report
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,58 +75,11 @@ jobs:
           name: SplatTricia-1.1-Release-QA
           path: qa/
           if-no-files-found: ignore
-      - name: Create the three test ZIPs
-        run: python scripts/assemble_preview.py package
-      - name: Publish verified stable release
+      - name: Package and verify unchanged runtime ZIPs
+        run: python scripts/assemble_animation_update.py package
+      - name: Update existing stable release after package and browser checks
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          @'
-          SplatTricia 1.1 adds optional depth maps and wiggle animations.
-
-          - 16-bit grayscale depth PNGs in depth_maps (white near, black far), independent of stereo settings and floating-window curtains.
-          - Wiggle MP4: H.264 CRF18/slow, 8-bit 4:2:0, 30/60 fps, maximum height 720/1080/2160 pixels; defaults to 1080p/30 fps and contains five cycles.
-          - Wiggle GIF: 10/15/20/25 fps, default 15 fps, maximum long edge 800 pixels by default, continuous looping.
-          - PNG frame sequence: 30/60 fps, maximum height 1080/2160 pixels, one cycle in a numbered folder per source image.
-          - Themed wiggle settings with saved per-format size/frame rate; smaller images are never enlarged.
-          - Stable GUI geometry when enabling wiggle and starting processing, including long status messages.
-
-          Existing stereo geometry, slider behavior and image processing are preserved. Existing saved choices are retained; the new GIF default applies to fresh settings or after restoring defaults.
-
-          Download all three ZIPs below and extract each into the same destination directory, merging their SplatTricia folder. All runtime libraries and tools are included. A compatible NVIDIA GPU is required.
-
-          The SHARP checkpoint is not included. Obtain sharp_2572gikvuh.pt separately from https://github.com/apple-aiml-research/ml-sharp, read and accept Apple's model terms before downloading, and place the file in SplatTricia/models. Processing works offline after setup.
-
-          Windows GUI tests in German/English at 100/125/150% scaling, actual encoding checks, full package file verification and download checksum verification passed. The previous 1.0 release remains available.
-          '@ | Set-Content -Encoding utf8 release-notes.md
-          $currentHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha'
-          if ($LASTEXITCODE -ne 0 -or $currentHead -ne $env:GITHUB_SHA) { throw 'A newer main commit superseded this build' }
-          gh release view v1.1 --repo $env:GITHUB_REPOSITORY --json isDraft > draft-state.json 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            $existing = Get-Content -Raw draft-state.json | ConvertFrom-Json
-            if (-not $existing.isDraft) { throw 'Published v1.1 is never overwritten automatically' }
-            gh release edit v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --notes-file release-notes.md
-            if ($LASTEXITCODE -ne 0) { throw 'Could not update unpublished draft' }
-            $tagHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1" --jq '.object.sha' 2>$null
-            if ($LASTEXITCODE -eq 0 -and $tagHead -ne $env:GITHUB_SHA) {
-              gh api "repos/$env:GITHUB_REPOSITORY/git/refs/tags/v1.1" --method PATCH -f "sha=$env:GITHUB_SHA"
-              if ($LASTEXITCODE -ne 0) { throw 'Could not advance unpublished source tag' }
-            }
-          } else {
-            gh release create v1.1 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'SplatTricia 1.1' --draft --notes-file release-notes.md
-            if ($LASTEXITCODE -ne 0) { throw 'Could not create release draft' }
-          }
-          gh release upload v1.1 --repo $env:GITHUB_REPOSITORY --clobber publish/*
-          if ($LASTEXITCODE -ne 0) { throw 'Could not upload release packages' }
-          New-Item -ItemType Directory -Force downloads | Out-Null
-          gh release download v1.1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir downloads
-          if ($LASTEXITCODE -ne 0) { throw 'Could not verify release downloads' }
-          foreach ($archive in Get-ChildItem publish/*.zip) {
-            $original = (Get-FileHash -Algorithm SHA256 $archive.FullName).Hash
-            $downloaded = (Get-FileHash -Algorithm SHA256 (Join-Path 'downloads' $archive.Name)).Hash
-            if ($original -ne $downloaded) { throw "Download checksum differs: $($archive.Name)" }
-          }
-          $currentHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha'
-          if ($LASTEXITCODE -ne 0 -or $currentHead -ne $env:GITHUB_SHA) { throw 'A newer main commit superseded this build' }
-          gh release edit v1.1 --repo $env:GITHUB_REPOSITORY --draft=false --latest
-          if ($LASTEXITCODE -ne 0) { throw 'Could not publish verified release' }
+          python scripts/publish_export_update.py --root publish --config .github/export-update.json --notes RELEASE_1.1.md
+          if ($LASTEXITCODE -ne 0) { throw 'Existing release update failed' }
