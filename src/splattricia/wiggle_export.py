@@ -86,11 +86,12 @@ def export_wiggle(render_view: Callable[[float], np.ndarray], source_size: tuple
         sequence = [paths[cycle_index(i, count)] for i in range(count)]
         if options.format == "mp4":
             cycle = work / "cycle.mp4"
-            # Match TransCora: sRGB -> Rec.709, H.264 CRF18/slow, 8-bit 4:2:0.
+            # Preserve finished photo tone values; convert matrix/range only (MLT native SDR policy).
             # Padding is at most one pixel and never removes source image edges.
             video_filter = ("pad=ceil(iw/2)*2:ceil(ih/2)*2:0:0:black,format=gbrp,"
                             "zscale=matrixin=gbr:primariesin=709:transferin=iec61966-2-1:rangein=full:"
-                            "matrix=709:primaries=709:transfer=709:range=limited,format=yuv420p")
+                            "matrix=709:primaries=709:transfer=iec61966-2-1:range=limited,format=yuv420p,"
+                            "setparams=colorspace=bt709:color_primaries=bt709:color_trc=bt709:range=limited")
             def write(stream):
                 for index, path in enumerate(sequence):
                     check_cancelled(cancel)

@@ -1,0 +1,17 @@
+{
+  "repository": "muelli1975/SplatTricia",
+  "release_id": 413998834,
+  "tag": "v1.1",
+  "branch": "main",
+  "previous_tag": "ac8af8659477b1be462c7e3f908d9a58cdfb1eed",
+  "assets": {
+    "SplatTricia_1.1.zip": "sha256:f9c66d80ca0cd365d0657fada7c30cf7ddf447b74d7411a8c062359eb273db75",
+    "SplatTricia_1.1_Runtime_1.zip": "sha256:99369b6502061bcf03829c0ad17b5ca8a3c74913ecae94d237765c1cdb95d8e8",
+    "SplatTricia_1.1_Runtime_2.zip": "sha256:7cfa03d01433706345b95d9c04b819ea29381c2a0123a0b61f0b005cbfacb9be",
+    "SplatTricia_1.1_SHA256SUMS.txt": "sha256:1da97804d5fd491b494011852aeddcd1571c7c78c5c48bcf479d8766a72b85df"
+  },
+  "replace": [
+    "SplatTricia_1.1.zip",
+    "SplatTricia_1.1_SHA256SUMS.txt"
+  ]
+}

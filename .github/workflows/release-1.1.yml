@@ -26,12 +26,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release download v1.1 --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir base
       - name: Assemble the test application without changing native dependencies
-        run: python scripts/assemble_animation_update.py assemble
+        run: python scripts/assemble_color_update.py assemble
       - name: Check export source with the unchanged Pillow version
         run: |
           python -m pip install numpy Pillow==11.3.0 imageio-ffmpeg==0.6.0 pytest
           $env:PYTHONPATH = "$pwd/src"
-          python -m pytest -q tests/test_exports.py tests/test_animated_images.py tests/test_release_update.py
+          python -m pytest -q tests/test_exports.py tests/test_animated_images.py tests/test_release_update.py tests/test_sdr_color.py
           if ($LASTEXITCODE -ne 0) { throw 'Export source checks failed' }
       - name: Rebuild the frozen application EXE
         run: |
@@ -76,10 +76,10 @@ jobs:
           path: qa/
           if-no-files-found: ignore
       - name: Package and verify unchanged runtime ZIPs
-        run: python scripts/assemble_animation_update.py package
+        run: python scripts/assemble_color_update.py package
       - name: Update existing stable release after package and browser checks
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python scripts/publish_export_update.py --root publish --config .github/export-update.json --notes RELEASE_1.1.md
+          python scripts/publish_color_update.py --root publish --config .github/color-update.json
           if ($LASTEXITCODE -ne 0) { throw 'Existing release update failed' }
