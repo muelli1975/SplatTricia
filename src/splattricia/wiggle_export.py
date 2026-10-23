@@ -105,7 +105,7 @@ def export_wiggle(render_view: Callable[[float], np.ndarray], source_size: tuple
                          "-color_range", "tv", str(cycle)], work / "encode.log", cancel, write)
             temporary = work / "finished.mp4"
             try:
-                _run_ffmpeg(["-stream_loop", "4", "-i", str(cycle), "-map", "0:v:0", "-an", "-c:v", "copy",
+                _run_ffmpeg(["-stream_loop", str(options.video_cycles - 1), "-i", str(cycle), "-map", "0:v:0", "-an", "-c:v", "copy",
                              "-movflags", "+faststart", str(temporary)], work / "repeat.log", cancel)
                 check_cancelled(cancel)
                 _replace_with_retry(temporary, output)

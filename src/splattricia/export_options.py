@@ -17,6 +17,7 @@ class WiggleOptions:
     avif_fps: int = 30
     avif_height: int = 1080
     cycle_seconds: float = 2.0
+    video_cycles: int = 5
 
     @property
     def fps(self) -> int:
@@ -28,6 +29,8 @@ class WiggleOptions:
         return round(self.cycle_seconds * self.fps)
 
     def validate(self) -> None:
+        if type(self.video_cycles) is not int or self.video_cycles < 1:
+            raise ValueError("Anzahl der Zyklen: ganze Zahl ab 1 / number of cycles: positive integer.")
         if self.format not in {"mp4", "gif", "png", "avif"}:
             raise ValueError("Ungültiges Wiggle-Format / invalid wiggle format.")
         for value in (self.video_fps, self.png_fps, self.avif_fps):

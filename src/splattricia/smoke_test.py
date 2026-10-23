@@ -184,6 +184,8 @@ def _run_checks(output_dir):
                         assert dialog.cget('fg_color') == BG_MAIN
                         _check_children(dialog)
                         assert dialog.size_menu.cget('values') == ['720','1080','2160']
+                        assert dialog.cycles.cget('state')=='normal' and dialog.cycles.get()=='5'
+                        dialog.cycles.delete(0, 'end'); dialog.cycles.insert(0, '1')
                         dialog.size_menu.set('720')
                         if scale == 1.0:
                             _screenshot(dialog, output_dir/f'wiggle-{locale}.png')
@@ -191,6 +193,7 @@ def _run_checks(output_dir):
                         for choice in ('AVIF',):
                             dialog.format_menu.set(choice)
                             dialog._format_changed(choice)
+                            assert dialog.cycles.cget('state')=='disabled' and dialog.cycles.get()=='1'
                             assert dialog.size_menu.get() == '1080'
                             assert dialog.fps_menu.get() == '30'
                             assert dialog.size_menu.cget('values') == ['720','1080','2160']
@@ -211,6 +214,7 @@ def _run_checks(output_dir):
                     _settle(app)
                     saved = WiggleOptions.from_settings(load_settings(root/'settings.json')['wiggle'])
                     assert saved.format == 'gif' and saved.gif_fps == 25 and saved.video_fps == 60
+                    assert saved.video_cycles == 1
                     assert saved.video_height == 720
                     assert saved.avif_height == 2160
                     assert saved.avif_fps == 60

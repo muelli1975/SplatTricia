@@ -67,7 +67,7 @@ def encode_animation(paths: list[Path], output: Path, kind: str, fps: int,
     settings = dict(save_all=True, duration=durations)
     # libavif's sequence writer defaults to infinite repetition. Pillow
     # exposes no AVIF loop parameter; package tests inspect its BMFF flags.
-    settings.update(quality=60, subsampling="4:4:4", speed=6, range="full", codec="aom",
+    settings.update(quality=60, subsampling="4:2:0", speed=6, range="full", codec="aom",
                     max_threads=min(8, os.cpu_count() or 1))
     with _RenderedSequence(paths, check, progress) as sequence:
         sequence.save(output, format=kind.upper(), **settings)

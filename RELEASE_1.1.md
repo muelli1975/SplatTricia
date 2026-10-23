@@ -4,6 +4,8 @@
 - Add wiggle animations as MP4, looping GIF, AVIF or PNG frame sequences.
 - Save animation size and frame rate separately for each format.
 - Fix window resizing when enabling wiggle export or starting processing.
+- Add an adjustable MP4 cycle count (default: 5).
+- Reduce animated AVIF file sizes.
 
 ## Installation
 

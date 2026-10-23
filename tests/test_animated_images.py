@@ -1,5 +1,6 @@
 from dataclasses import replace
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -8,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 from splattricia.export_options import WiggleOptions
-from splattricia.wiggle_export import export_wiggle, ExportCancelled
+from splattricia.wiggle_export import export_wiggle, ExportCancelled, ffmpeg_path
 from splattricia.animation_checks import check_animation
 
 
@@ -19,6 +20,35 @@ class AnimatedImageTests(unittest.TestCase):
         rgb[..., 1] = np.arange(65, dtype=np.uint8) * 3
         rgb[:, round(weight * 50):round(weight * 50) + 10, 0] = 255
         return rgb
+
+    def test_cycle_count_defaults_validation_and_saved_settings(self):
+        old = WiggleOptions.from_settings(dict(video_height=2160, gif_fps=25))
+        self.assertEqual(old.video_cycles, 5)
+        option = replace(old, video_cycles=1)
+        self.assertEqual(WiggleOptions.from_settings(option.to_settings()), option)
+        for invalid in (0, -1, 1.5, True, "5"):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                replace(old, video_cycles=invalid).validate()
+
+    def test_mp4_cycle_count_without_repeated_rendering(self):
+        for cycles in (1, 2, 5):
+            with self.subTest(cycles=cycles), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp); output = root / 'animation.mp4'
+                options = WiggleOptions(cycle_seconds=.5, video_cycles=cycles)
+                calls = []
+                def render(weight):
+                    calls.append(weight)
+                    return self.view(weight)
+                export_wiggle(render, (65, 47), options, output, root / '_temp')
+                result = subprocess.run([ffmpeg_path(), '-v', 'error', '-i', str(output),
+                                         '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
+                                        check=True, capture_output=True)
+                self.assertEqual(len(result.stdout), 66 * 48 * 3 * options.frame_count * cycles)
+                self.assertEqual(len(calls), options.frame_count // 2 + 1)
+                frame_bytes = 66 * 48 * 3
+                cycle_bytes = options.frame_count * frame_bytes
+                for index in range(1, cycles):
+                    self.assertEqual(result.stdout[:cycle_bytes], result.stdout[index*cycle_bytes:(index+1)*cycle_bytes])
 
     def test_new_settings_keep_old_defaults_and_remember_each_format(self):
         old = WiggleOptions.from_settings(dict(format='mp4', video_height=1080, video_fps=60))
