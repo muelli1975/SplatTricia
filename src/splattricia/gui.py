@@ -365,21 +365,21 @@ class SplatTriciaApp(ctk.CTk):
         ) = self._path_row(
             parent, 3, "label.image_folder", self.input_folder, self.choose_input_folder
         )
-        self._separator(parent, 5, pady=(12, 4))
+        self._separator(parent, 5, pady=(8, 4))
         self._section_title(parent, "section.output", 6)
         self.input_subfolder_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.input_subfolder"),
             variable=self.use_input_subfolder, command=self._on_output_mode_changed,
         )
         self.input_subfolder_check.grid(
-            row=7, column=0, sticky="w", padx=20, pady=(0, 10)
+            row=7, column=0, sticky="w", padx=20, pady=(0, 8)
         )
         self.output_path_label = ctk.CTkLabel(
             parent, text=self.tr("label.output_folder"), anchor="w"
         )
         self.output_path_label.grid(row=8, column=0, sticky="ew", padx=20, pady=(0, 6))
         output_row = ctk.CTkFrame(parent, fg_color="transparent")
-        output_row.grid(row=9, column=0, sticky="ew", padx=20, pady=(0, 12))
+        output_row.grid(row=9, column=0, sticky="ew", padx=20, pady=(0, 8))
         output_row.grid_columnconfigure(0, weight=1)
         self.output_entry = ctk.CTkEntry(output_row, textvariable=self.output_folder)
         self.output_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
@@ -391,17 +391,17 @@ class SplatTriciaApp(ctk.CTk):
         self.gray_anaglyph_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph, command=self._save_paths
         )
-        self.gray_anaglyph_check.grid(row=10, column=0, sticky="w", padx=20, pady=(4, 14))
+        self.gray_anaglyph_check.grid(row=10, column=0, sticky="w", padx=20, pady=(0, 8))
         self.save_cross_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.save_cross"), variable=self.save_cross,
             command=self._save_paths,
         )
-        self.save_cross_check.grid(row=11, column=0, sticky="w", padx=20, pady=(0, 10))
+        self.save_cross_check.grid(row=11, column=0, sticky="w", padx=20, pady=(0, 8))
         self.save_depth_check = ctk.CTkCheckBox(parent, text=self.tr("option.save_depth_map"),
                                                variable=self.save_depth_map, command=self._save_paths)
-        self.save_depth_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 12))
+        self.save_depth_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 8))
         wiggle_row = ctk.CTkFrame(parent, fg_color="transparent")
-        wiggle_row.grid(row=13, column=0, sticky="ew", padx=20, pady=(0, 20))
+        wiggle_row.grid(row=13, column=0, sticky="ew", padx=20, pady=(0, 12))
         wiggle_row.grid_columnconfigure(0, weight=1)
         self.save_wiggle_check = ctk.CTkCheckBox(wiggle_row, text=self.tr("option.save_wiggle"),
                                                 variable=self.save_wiggle, command=self._on_wiggle_changed,
@@ -410,20 +410,20 @@ class SplatTriciaApp(ctk.CTk):
         self.wiggle_button = ctk.CTkButton(wiggle_row, text=self.tr("wiggle.settings"), width=110,
                                            command=self._open_wiggle_dialog)
         self.wiggle_button.grid(row=0, column=1, sticky="e")
-        self._separator(parent, 14, pady=(12, 4))
+        self._separator(parent, 14, pady=(8, 4))
         self._section_title(parent, "section.options", 15)
         self.use_ply_cache_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.reuse_ply"), variable=self.use_ply_cache
         )
         self.use_ply_cache_check.grid(
-            row=16, column=0, sticky="w", padx=20, pady=(0, 12)
+            row=16, column=0, sticky="w", padx=20, pady=(0, 8)
         )
         self.append_settings_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.append_settings"),
             variable=self.append_settings_to_filename,
         )
         self.append_settings_check.grid(
-            row=17, column=0, sticky="w", padx=20, pady=(0, 12)
+            row=17, column=0, sticky="w", padx=20, pady=(0, 8)
         )
 
     def _update_wiggle_state(self) -> None:
