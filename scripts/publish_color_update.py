@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import urllib.error
 import urllib.parse
@@ -22,7 +23,7 @@ def main():
     config = json.loads(args.config.read_text(encoding='utf-8'))
     tag = config['tag']
     branch = config['branch']
-    repo, sha = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_SHA']
+    repo, sha = os.environ['GITHUB_REPOSITORY'], os.environ.get('UPDATE_SOURCE_SHA', os.environ['GITHUB_SHA'])
     assert repo == config['repository']
     token = os.environ['GH_TOKEN']
     api_root = 'https://api.github.com/repos/' + repo
@@ -99,6 +100,13 @@ def main():
         body = old_body
         for name, item in files.items():
             body = body.replace(assets[name]['digest'].split(':')[-1], item['digest'].split(':')[-1])
+        prefix = config.get('notes_prefix')
+        if prefix and prefix not in body:
+            first, rest = body.split('\n\n', 1)
+            body = first + '\n\n' + prefix + '\n\n' + rest
+        if config.get('validation'):
+            body = re.sub(r'## Validation\n.*?(?=\n## SHA-256|\Z)', '## Validation\n\n' + config['validation'] + '\n', body, flags=re.S)
+        body = re.sub(r'/actions/runs/\d+', '/actions/runs/' + os.environ['GITHUB_RUN_ID'], body)
         body = body.replace(old_tag, sha)
         body = body.replace(old_tag[:7], sha[:7])
         api('/releases/' + str(release['id']), 'PATCH', {'body': body, 'target_commitish': sha})

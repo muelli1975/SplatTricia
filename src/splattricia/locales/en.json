@@ -22,6 +22,7 @@
   "button.start": "Start",
   "button.cancel": "Cancel",
   "option.input_subfolder": "Use a subfolder inside the input folder",
+  "option.save_cross": "Save cross-view",
   "option.gray_anaglyph": "Grayscale anaglyphs",
   "option.reuse_ply": "Reuse 3D point clouds",
   "option.append_settings": "Append settings to file names",

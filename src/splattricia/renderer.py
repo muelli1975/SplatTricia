@@ -66,6 +66,7 @@ def render_ply_to_outputs(
     jpeg_quality_sbs: int,
     jpeg_quality_anaglyph: int,
     progress_callback: RenderProgressCallback | None = None,
+    cross_path: Path | None = None,
     depth_path: Path | None = None,
     wiggle_path: Path | None = None,
     wiggle_options: WiggleOptions = WiggleOptions(),
@@ -145,6 +146,9 @@ def render_ply_to_outputs(
 
         _notify(progress_callback, "save_sbs", 0.60)
         save_sbs_jpeg(left_rgb, right_rgb, sbs_path, jpeg_quality_sbs)
+        if cross_path is not None:
+            check_cancelled(cancel_callback)
+            save_sbs_jpeg(right_rgb, left_rgb, cross_path, jpeg_quality_sbs)
 
         _notify(progress_callback, "anaglyph", 0.72)
         anaglyph_start = time.perf_counter()

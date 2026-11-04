@@ -73,7 +73,8 @@ class SplatTriciaApp(ctk.CTk):
         )
         self.use_ply_cache = ctk.BooleanVar(value=True)
         self.append_settings_to_filename = ctk.BooleanVar(value=False)
-        self.gray_anaglyph = ctk.BooleanVar(value=False)
+        self.gray_anaglyph = ctk.BooleanVar(value=bool(self.settings.get("gray_anaglyph", False)))
+        self.save_cross = ctk.BooleanVar(value=bool(self.settings.get("save_cross", False)))
         self.save_depth_map = ctk.BooleanVar(value=bool(self.settings.get("save_depth_map", False)))
         self.save_wiggle = ctk.BooleanVar(value=bool(self.settings.get("save_wiggle", False)))
         self.wiggle_options = WiggleOptions.from_settings(self.settings.get("wiggle", {}))
@@ -240,6 +241,7 @@ class SplatTriciaApp(ctk.CTk):
         for checkbox in (
             self.input_subfolder_check,
             self.gray_anaglyph_check,
+            self.save_cross_check,
             self.use_ply_cache_check,
             self.append_settings_check,
             self.save_depth_check,
@@ -387,29 +389,19 @@ class SplatTriciaApp(ctk.CTk):
         )
         self.output_button.grid(row=0, column=1, sticky="e")
         self.gray_anaglyph_check = ctk.CTkCheckBox(
-            parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph
+            parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph, command=self._save_paths
         )
         self.gray_anaglyph_check.grid(row=10, column=0, sticky="w", padx=20, pady=(4, 14))
-        self._separator(parent, 11, pady=(12, 4))
-        self._section_title(parent, "section.options", 12)
-        self.use_ply_cache_check = ctk.CTkCheckBox(
-            parent, text=self.tr("option.reuse_ply"), variable=self.use_ply_cache
+        self.save_cross_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.save_cross"), variable=self.save_cross,
+            command=self._save_paths,
         )
-        self.use_ply_cache_check.grid(
-            row=13, column=0, sticky="w", padx=20, pady=(0, 12)
-        )
-        self.append_settings_check = ctk.CTkCheckBox(
-            parent, text=self.tr("option.append_settings"),
-            variable=self.append_settings_to_filename,
-        )
-        self.append_settings_check.grid(
-            row=14, column=0, sticky="w", padx=20, pady=(0, 12)
-        )
+        self.save_cross_check.grid(row=11, column=0, sticky="w", padx=20, pady=(0, 10))
         self.save_depth_check = ctk.CTkCheckBox(parent, text=self.tr("option.save_depth_map"),
                                                variable=self.save_depth_map, command=self._save_paths)
-        self.save_depth_check.grid(row=15, column=0, sticky="w", padx=20, pady=(0, 12))
+        self.save_depth_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 12))
         wiggle_row = ctk.CTkFrame(parent, fg_color="transparent")
-        wiggle_row.grid(row=16, column=0, sticky="ew", padx=20, pady=(0, 20))
+        wiggle_row.grid(row=13, column=0, sticky="ew", padx=20, pady=(0, 20))
         wiggle_row.grid_columnconfigure(0, weight=1)
         self.save_wiggle_check = ctk.CTkCheckBox(wiggle_row, text=self.tr("option.save_wiggle"),
                                                 variable=self.save_wiggle, command=self._on_wiggle_changed,
@@ -418,6 +410,21 @@ class SplatTriciaApp(ctk.CTk):
         self.wiggle_button = ctk.CTkButton(wiggle_row, text=self.tr("wiggle.settings"), width=110,
                                            command=self._open_wiggle_dialog)
         self.wiggle_button.grid(row=0, column=1, sticky="e")
+        self._separator(parent, 14, pady=(12, 4))
+        self._section_title(parent, "section.options", 15)
+        self.use_ply_cache_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.reuse_ply"), variable=self.use_ply_cache
+        )
+        self.use_ply_cache_check.grid(
+            row=16, column=0, sticky="w", padx=20, pady=(0, 12)
+        )
+        self.append_settings_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.append_settings"),
+            variable=self.append_settings_to_filename,
+        )
+        self.append_settings_check.grid(
+            row=17, column=0, sticky="w", padx=20, pady=(0, 12)
+        )
 
     def _update_wiggle_state(self) -> None:
         self.wiggle_button.configure(state="normal" if self.save_wiggle.get() and not self.is_running else "disabled")
@@ -665,6 +672,8 @@ class SplatTriciaApp(ctk.CTk):
                 "last_output_folder": self.output_folder.get(),
                 "use_input_subfolder": bool(self.use_input_subfolder.get()),
                 "save_depth_map": bool(self.save_depth_map.get()),
+                "save_cross": bool(self.save_cross.get()),
+                "gray_anaglyph": bool(self.gray_anaglyph.get()),
                 "save_wiggle": bool(self.save_wiggle.get()),
                 "wiggle": self.wiggle_options.to_settings(),
             }
@@ -848,6 +857,7 @@ class SplatTriciaApp(ctk.CTk):
         self.float_bottom.set(0)
         self.float_lr_symmetric.set(True)
         self.gray_anaglyph.set(False)
+        self.save_cross.set(False)
         self.append_settings_to_filename.set(False)
         self.use_ply_cache.set(True)
         self.save_depth_map.set(False)
@@ -914,6 +924,7 @@ class SplatTriciaApp(ctk.CTk):
             float_top_permille=round(float(self.float_top.get())),
             float_bottom_permille=round(float(self.float_bottom.get())),
             gray_anaglyph=bool(self.gray_anaglyph.get()),
+            save_cross=bool(self.save_cross.get()),
             append_settings_to_filename=bool(self.append_settings_to_filename.get()),
             save_depth_map=bool(self.save_depth_map.get()),
             save_wiggle=bool(self.save_wiggle.get()),

@@ -22,6 +22,7 @@
   "button.start": "Start",
   "button.cancel": "Abbrechen",
   "option.input_subfolder": "Unterordner im Input-Ordner verwenden",
+  "option.save_cross": "Kreuzblick speichern",
   "option.gray_anaglyph": "Graustufen-Anaglyphen",
   "option.reuse_ply": "3D-Punktwolken wiederverwenden",
   "option.append_settings": "Dateiname um Einstellungen ergänzen",

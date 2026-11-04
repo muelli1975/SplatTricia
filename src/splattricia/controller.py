@@ -147,6 +147,7 @@ class ProcessingController:
                 cache_metadata_path=cache_metadata_path,
                 sbs_path=sbs_path,
                 anaglyph_path=anaglyph_path,
+                cross_path=output_dir / "cross" / f"{output_stem}_cross.jpg" if self.config.save_cross else None,
                 cache_identity=identity,
                 cache_valid=False,
                 depth_path=output_dir / "depth_maps" / f"{key}_depth.png" if self.config.save_depth_map else None,
@@ -322,6 +323,7 @@ class ProcessingController:
                     ply_path=item.ply_path,
                     sbs_path=item.sbs_path,
                     anaglyph_path=item.anaglyph_path,
+                    cross_path=item.cross_path,
                     device=device,
                     deviation_permille=self.config.deviation_permille,
                     window_position_percent=self.config.window_position_percent,
@@ -355,7 +357,7 @@ class ProcessingController:
                     metadata_result = copy_metadata_to_outputs(
                         self.config.exiftool_path,
                         item.source_path,
-                        (item.sbs_path, item.anaglyph_path),
+                        tuple(p for p in (item.sbs_path, item.anaglyph_path, item.cross_path) if p is not None),
                     )
                     if metadata_result.error:
                         self._emit(

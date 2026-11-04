@@ -164,6 +164,11 @@ def _run_checks(output_dir):
                     assert app.wiggle_button.cget('state') == 'disabled'
                     _check_children(app)
                     initial_geometry = _layout_geometry(app)
+                    app.save_cross.set(True)
+                    app.gray_anaglyph.set(True)
+                    app._save_paths()
+                    saved_outputs = load_settings(root/'settings.json')
+                    assert saved_outputs['save_cross'] and saved_outputs['gray_anaglyph']
                     app.save_wiggle_check.toggle()
                     assert app.wiggle_button.cget('state') == 'normal'
                     _assert_layout_unchanged(app,initial_geometry)
@@ -232,6 +237,8 @@ def _run_checks(output_dir):
                     app.status_text.set('Processing / ' + 'long_filename_' * 30 + '.jpg')
                     _assert_layout_unchanged(app,before_start)
                     assert app.save_wiggle_check.cget('state') == 'disabled'
+                    assert app.save_cross_check.cget('state') == 'disabled'
+                    assert app.gray_anaglyph_check.cget('state') == 'disabled'
                     assert app.wiggle_button.cget('state') == 'disabled'
                     app.is_running = False
                     app._set_processing_controls(False)
@@ -287,8 +294,53 @@ def _run_checks(output_dir):
         save_depth_png(np.array([[1.,2.,4.]]),np.ones((1,3)),path)
         with Image.open(path) as image:
             assert np.asarray(image).tolist()==[[65535,21845,0]]
-    return {'version':__version__,'application_code':str(Path(gui.__file__).resolve()),
+    _check_cross_render()
+    return {'cross_view':True, 'version':__version__,'application_code':str(Path(gui.__file__).resolve()),
             'gui_layouts':layouts,'layout_transitions':'wiggle on/off, Start, busy, long status, idle',
             'animated_images':animated_checks,
             'encoder_tests':'AVIF 30/60, MP4 30/60, GIF 10/15/20/25, PNG sequence, 16-bit depth PNG',
             'cuda_inference_tested':False}
+
+
+def _check_cross_render():
+    """Exercise the real export path with deterministic synthetic rendering."""
+    from types import SimpleNamespace
+    import torch
+    from . import renderer as module
+    originals = module.load_ply, module.GSplatRenderer, torch.cuda.synchronize
+    class Gaussians:
+        mean_vectors = torch.tensor([[-.1,-.1,2.],[.1,.1,3.],[0.,0.,5.]])
+        def to(self, device):
+            return self
+    calls = []
+    class Renderer:
+        def __init__(self, **kwargs):
+            pass
+        def to(self, device):
+            return self
+        def __call__(self, g, *, extrinsics, intrinsics, image_width, image_height):
+            calls.append(1)
+            value = .25 if len(calls) == 1 else .75
+            color = torch.full((1,3,48,64),value)
+            color[:,0] *= .7
+            return SimpleNamespace(color=color, depth=torch.full((1,1,48,64),3.), alpha=torch.ones(1,1,48,64))
+    try:
+        module.load_ply = lambda path: (Gaussians(), SimpleNamespace(resolution_px=(64,48),focal_length_px=50.,color_space='sRGB'))
+        module.GSplatRenderer = Renderer
+        torch.cuda.synchronize = lambda:None
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            module.render_ply_to_outputs(ply_path=root/'test.ply', sbs_path=root/'sbs.jpg',
+                anaglyph_path=root/'anaglyph.jpg', cross_path=root/'cross.jpg', device=torch.device('cpu'),
+                deviation_permille=20, window_position_percent=100, window_back_permille=0,
+                float_left_permille=10, float_right_permille=0, float_top_permille=0, float_bottom_permille=0,
+                gray_anaglyph=True, jpeg_quality_sbs=95, jpeg_quality_anaglyph=90)
+            with Image.open(root/'sbs.jpg') as image:
+                sbs = np.asarray(image)
+            with Image.open(root/'cross.jpg') as image:
+                cross = np.asarray(image)
+            assert sbs.shape == cross.shape == (48,128,3)
+            assert np.array_equal(sbs[:,:64], cross[:,64:])
+            assert np.array_equal(sbs[:,64:], cross[:,:64])
+    finally:
+        module.load_ply, module.GSplatRenderer, torch.cuda.synchronize = originals

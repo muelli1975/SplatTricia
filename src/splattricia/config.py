@@ -19,6 +19,7 @@ class ProcessingConfig:
     float_top_permille: float = 0.0
     float_bottom_permille: float = 0.0
     gray_anaglyph: bool = False
+    save_cross: bool = False
     append_settings_to_filename: bool = False
     jpeg_quality_sbs: int = 95
     jpeg_quality_anaglyph: int = 90

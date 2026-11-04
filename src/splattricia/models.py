@@ -18,6 +18,7 @@ class ProcessingItem:
     cache_identity: CacheIdentity
     cache_valid: bool
     status: str = "offen"
+    cross_path: Path | None = None
     depth_path: Path | None = None
     wiggle_path: Path | None = None
 

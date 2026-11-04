@@ -6,6 +6,8 @@ SplatTricia 1.1 ergänzt optionale Tiefenkarten und Wiggle-Animationen. Die [bis
 
 SplatTricia ist ein lokales Windows-Werkzeug zur automatischen Konvertierung einzelner 2D-Bilder oder ganzer Bildordner in Stereo-3D. Aus jedem Bild werden ein paralleles Side-by-Side-Stereobild (SBS) und wahlweise eine Farb- oder Graustufen-Anaglyphe erzeugt.
 
+**Kreuzblick speichern** ergänzt eine farbige R/L-JPEG-Datei im Ordner `cross`. Graustufen-Anaglyphen, Kreuzblick, Tiefenkarte und Wiggle sind unter Ausgabe zusammengefasst. Die Wahl von Graustufen und Kreuzblick wird gespeichert.
+
 Die 3D-Rekonstruktion basiert auf **Apple SHARP**. SplatTricia verarbeitet Bilder lokal, führt keine automatischen Modell-Downloads durch und benötigt für die Benutzung keine Cloud oder Online-Verbindung.
 
 [![SplatTricia 1.1](docs/screenshots/SplatTricia.png)](docs/screenshots/SplatTricia.png)
