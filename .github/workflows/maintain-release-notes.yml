@@ -1,0 +1,50 @@
+name: Curate published release notes
+on:
+  push:
+    branches: [maintenance/release-notes-20261104]
+    paths:
+      - '.github/release-notes.json'
+      - '.github/workflows/maintain-release-notes.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update only the approved release descriptions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          import urllib.request
+          plan = json.loads(Path('.github/release-notes.json').read_text())
+          repo = os.environ['GITHUB_REPOSITORY']
+          assert repo == plan['repository']
+          def api(release_id, body=None):
+              request = urllib.request.Request(
+                  'https://api.github.com/repos/' + repo + '/releases/' + str(release_id),
+                  data=json.dumps({'body':body}).encode() if body is not None else None,
+                  method='PATCH' if body is not None else 'GET',
+                  headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],
+                           'Accept':'application/vnd.github+json', 'Content-Type':'application/json'})
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  return json.load(response)
+          def identity(release):
+              return ([release[k] for k in ('id','tag_name','target_commitish','draft','prerelease')],
+                      [(a['id'],a['name'],a['size'],a.get('digest')) for a in release['assets']])
+          for item in plan['releases']:
+              before = api(item['id'])
+              assert before['tag_name'] == item['tag'] and not before['draft']
+              if before['body'] == item['body']:
+                  print('Already updated:', item['tag'])
+                  continue
+              assert hashlib.sha256((before['body'] or '').encode()).hexdigest() == item['expected_body_sha256'], 'Release text changed concurrently'
+              after = api(item['id'], item['body'])
+              assert after['body'] == item['body'] and identity(after) == identity(before)
+              print('Updated:', item['tag'])
+          PY
