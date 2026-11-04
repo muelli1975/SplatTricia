@@ -100,12 +100,7 @@ def main():
         body = old_body
         for name, item in files.items():
             body = body.replace(assets[name]['digest'].split(':')[-1], item['digest'].split(':')[-1])
-        prefix = config.get('notes_prefix')
-        if prefix and prefix not in body:
-            first, rest = body.split('\n\n', 1)
-            body = first + '\n\n' + prefix + '\n\n' + rest
-        if config.get('validation'):
-            body = re.sub(r'## Validation\n.*?(?=\n## SHA-256|\Z)', '## Validation\n\n' + config['validation'] + '\n', body, flags=re.S)
+        # Release prose is curated separately from routine asset refreshes.
         body = re.sub(r'/actions/runs/\d+', '/actions/runs/' + os.environ['GITHUB_RUN_ID'], body)
         body = body.replace(old_tag, sha)
         body = body.replace(old_tag[:7], sha[:7])

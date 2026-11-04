@@ -13,6 +13,5 @@
   "replace": [
     "SplatTricia_1.1.zip",
     "SplatTricia_1.1_SHA256SUMS.txt"
-  ],
-  "notes_prefix": "- Use consistent complete sentences for MP4, GIF, AVIF and PNG animation settings in German and English."
+  ]
 }
