@@ -307,7 +307,11 @@ def _check_cross_render():
     from types import SimpleNamespace
     import torch
     from . import renderer as module
-    originals = module.load_ply, module.GSplatRenderer, torch.cuda.synchronize
+    originals = module.load_ply, module.GSplatRenderer, torch.cuda.synchronize, module.save_sbs_jpeg
+    finished = {}
+    def capture_sbs(left, right, path, quality):
+        finished['left'], finished['right'] = left.copy(), right.copy()
+        originals[3](left, right, path, quality)
     class Gaussians:
         mean_vectors = torch.tensor([[-.1,-.1,2.],[.1,.1,3.],[0.,0.,5.]])
         def to(self, device):
@@ -325,6 +329,7 @@ def _check_cross_render():
             color[:,0] *= .7
             return SimpleNamespace(color=color, depth=torch.full((1,1,48,64),3.), alpha=torch.ones(1,1,48,64))
     try:
+        module.save_sbs_jpeg = capture_sbs
         module.load_ply = lambda path: (Gaussians(), SimpleNamespace(resolution_px=(64,48),focal_length_px=50.,color_space='sRGB'))
         module.GSplatRenderer = Renderer
         torch.cuda.synchronize = lambda:None
@@ -340,7 +345,13 @@ def _check_cross_render():
             with Image.open(root/'cross.jpg') as image:
                 cross = np.asarray(image)
             assert sbs.shape == cross.shape == (48,128,3)
-            assert np.array_equal(sbs[:,:64], cross[:,64:])
-            assert np.array_equal(sbs[:,64:], cross[:,:64])
+            reference = root/'expected-cross.jpg'
+            Image.fromarray(np.concatenate([finished['right'], finished['left']], axis=1)).save(
+                reference, quality=90, subsampling=0)
+            with Image.open(reference) as expected, Image.open(root/'cross.jpg') as actual:
+                assert actual.quantization == expected.quantization
+                np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
+                from PIL import JpegImagePlugin
+                assert JpegImagePlugin.get_sampling(actual) == 0
     finally:
-        module.load_ply, module.GSplatRenderer, torch.cuda.synchronize = originals
+        module.load_ply, module.GSplatRenderer, torch.cuda.synchronize, module.save_sbs_jpeg = originals
