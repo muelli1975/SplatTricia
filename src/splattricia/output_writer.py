@@ -9,6 +9,7 @@ from PIL import Image
 
 REPLACE_ATTEMPTS = 8
 REPLACE_DELAY_SECONDS = 0.25
+CROSS_JPEG_QUALITY = 90
 
 
 def _replace_with_retry(temporary: Path, destination: Path) -> None:
@@ -59,6 +60,11 @@ def save_sbs_jpeg(
     quality: int,
 ) -> None:
     _save_jpeg(np.concatenate([left_rgb, right_rgb], axis=1), output_path, quality)
+
+
+def save_cross_jpeg(left_rgb: np.ndarray, right_rgb: np.ndarray, output_path: Path) -> None:
+    """Save the finished pair in R/L order at the fixed cross-view quality."""
+    save_sbs_jpeg(right_rgb, left_rgb, output_path, CROSS_JPEG_QUALITY)
 
 
 def save_anaglyph_jpeg(image: np.ndarray, output_path: Path, quality: int) -> None:

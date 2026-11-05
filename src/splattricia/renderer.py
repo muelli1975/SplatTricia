@@ -12,7 +12,7 @@ from sharp.utils.gsplat import GSplatRenderer
 
 from .anaglyph import make_anaglyph
 from .floating_window import apply_floating_window
-from .output_writer import save_anaglyph_jpeg, save_sbs_jpeg
+from .output_writer import save_anaglyph_jpeg, save_cross_jpeg, save_sbs_jpeg
 from .stereo_geometry import create_stereo_setup, make_intrinsics
 from .export_options import WiggleOptions
 from .depth_export import save_depth_png
@@ -148,7 +148,7 @@ def render_ply_to_outputs(
         save_sbs_jpeg(left_rgb, right_rgb, sbs_path, jpeg_quality_sbs)
         if cross_path is not None:
             check_cancelled(cancel_callback)
-            save_sbs_jpeg(right_rgb, left_rgb, cross_path, jpeg_quality_sbs)
+            save_cross_jpeg(left_rgb, right_rgb, cross_path)
 
         _notify(progress_callback, "anaglyph", 0.72)
         anaglyph_start = time.perf_counter()

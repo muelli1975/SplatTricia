@@ -6,7 +6,7 @@ SplatTricia 1.1 adds optional depth maps and wiggle animations. The [previous 1.
 
 SplatTricia is a local Windows tool for automatically converting individual 2D images or complete image folders into stereo 3D. Each image produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
 
-Optional **Save cross-view** adds a full-colour R/L JPEG in `cross`. Grayscale anaglyph, cross-view, depth-map and wiggle choices are grouped under Output. Grayscale and cross-view choices are remembered.
+Optional **Save cross-view** adds a full-colour R/L JPEG in `cross`, using quality 90 and 4:4:4 sampling. Grayscale anaglyph, cross-view, depth-map and wiggle choices are grouped under Output. Grayscale and cross-view choices are remembered.
 
 The 3D reconstruction is based on **Apple SHARP**. SplatTricia processes images locally, performs no automatic model downloads, and does not require cloud or online services for normal use.
 
