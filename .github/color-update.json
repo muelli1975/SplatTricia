@@ -3,12 +3,12 @@
   "release_id": 413998834,
   "tag": "v1.1",
   "branch": "main",
-  "previous_tag": "04f1c290168f95e21a042170204b00bb6883dc5e",
+  "previous_tag": "3eb795f8337a605ac0450298ca912ed4221af17d",
   "assets": {
-    "SplatTricia_1.1.zip": "sha256:b01e0d284457ae3783147c0312a8ae44de0d115a6de130301524303afd2f044e",
+    "SplatTricia_1.1.zip": "sha256:766b63c5d29d8ab3f1fa5e755203e673dbdaf1f5268fad3eb70fcacffa601e75",
     "SplatTricia_1.1_Runtime_1.zip": "sha256:99369b6502061bcf03829c0ad17b5ca8a3c74913ecae94d237765c1cdb95d8e8",
     "SplatTricia_1.1_Runtime_2.zip": "sha256:7cfa03d01433706345b95d9c04b819ea29381c2a0123a0b61f0b005cbfacb9be",
-    "SplatTricia_1.1_SHA256SUMS.txt": "sha256:15132036f0be673cc383cf12d53dced437b01ba4572934a3be49a14afbe0d864"
+    "SplatTricia_1.1_SHA256SUMS.txt": "sha256:e754023b5c098c4ee4ca405bb8dd8518ed888f376a22a63412a458382df6dd3d"
   },
   "replace": [
     "SplatTricia_1.1.zip",
