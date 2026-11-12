@@ -1,0 +1,18 @@
+{
+  "repository": "muelli1975/SplatTricia",
+  "tag": "v1.1",
+  "branch": "main",
+  "previous_tag": "10d6ed71b47342322fcb1b5fa8b565cc4f0d6042",
+  "release_id": 413998834,
+  "assets": {
+    "SplatTricia_1.1.zip": "sha256:8307aac3343fd9b45bbfc26ffd9b41c8f12f94931f568b41abad85be2f2e5aed",
+    "SplatTricia_1.1_Runtime_1.zip": "sha256:99369b6502061bcf03829c0ad17b5ca8a3c74913ecae94d237765c1cdb95d8e8",
+    "SplatTricia_1.1_Runtime_2.zip": "sha256:7cfa03d01433706345b95d9c04b819ea29381c2a0123a0b61f0b005cbfacb9be",
+    "SplatTricia_1.1_SHA256SUMS.txt": "sha256:5151ca15ce51b0953abfa951af3a5331d3344349c4cdbfd3afa5ff1a04912aea"
+  },
+  "replace": [
+    "SplatTricia_1.1.zip",
+    "SplatTricia_1.1_SHA256SUMS.txt"
+  ],
+  "release_note": "### Title bar maintenance update\n\n- Use a fixed dark title bar on Windows 11."
+}

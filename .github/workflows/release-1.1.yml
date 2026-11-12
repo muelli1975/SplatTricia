@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Release SplatTricia 1.1')
+    if: github.event_name == 'workflow_dispatch' || (contains(github.event.head_commit.message, 'Release SplatTricia 1.1') || github.event.head_commit.message == 'Refresh SplatTricia 1.1 title bars')
     runs-on: windows-2022
     timeout-minutes: 60
     defaults:
@@ -81,5 +81,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python scripts/publish_color_update.py --root publish --config .github/color-update.json
+          if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF_NAME -eq 'main' -and (git log -1 --format=%s) -eq 'Refresh SplatTricia 1.1 title bars') {
+            python scripts/publish_title_bar_update.py --root publish --config .github/title-bar-update.json
+          } else {
+            python scripts/publish_color_update.py --root publish --config .github/color-update.json
+          }
           if ($LASTEXITCODE -ne 0) { throw 'Existing release update failed' }
