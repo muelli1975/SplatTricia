@@ -1,7 +1,7 @@
 STEREO-TOOLS
 GEMEINSAMER GESTALTUNGS- UND BEDIENSTANDARD
 ==========================================
-Version 1.5 | Stand: 9. Oktober 2026
+Version 1.6 | Stand: 12. November 2026
 
 Zweck
 -----
@@ -38,6 +38,23 @@ Vorschauhintergrund           #000000
 Fenstertitel / Branding:      #c6a95e
 Normale Abschnittsüberschrift:#f2f2f2
 Fortschrittsbalken:           #9c7c38 auf #333333
+
+
+NATIVE TITELLEISTE
+-------------------
+Für alle Stereo-Tools mit grafischer Oberfläche gilt dieselbe Vorgabe:
+Hauptfenster und programmeigene Dialoge haben eine dunkle Titelleiste
+mit heller Schrift, auch bei hellem Systemdesign.
+
+Windows 11 verwendet #202020 für die Titelleiste und #f2f2f2 für den Text.
+macOS verwendet die native dunkle AppKit-Darstellung. Tk, CustomTkinter
+und Qt binden dieselbe gemeinsame Plattformlogik ein. Für Windows 10
+und Linux ist die dauerhaft dunkle Darstellung über die unterstützten
+Fenstersysteme noch zu prüfen.
+
+Beim Testen helles und dunkles Systemdesign, eigene Dialoge und die
+Rückkehr aus dem Vollbild prüfen. Verschieben, Größenänderung,
+Maximieren und Andocken gehören zur Fensterprüfung.
 
 
 PRIMÄRER START-BUTTON

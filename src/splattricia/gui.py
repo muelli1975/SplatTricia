@@ -15,6 +15,7 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 from . import __version__
+from .titlebar import install_tk_titlebars
 from .cache import clear_temporary_files
 from .config import ProcessingConfig
 from .export_options import WiggleOptions
@@ -54,6 +55,7 @@ class SplatTriciaApp(ctk.CTk):
         self.tr = self.translator.tr
 
         ctk.set_appearance_mode("dark")
+        install_tk_titlebars(self)
         self.title(f"{APP_NAME} – {__version__}")
         self.geometry("1280x880")
         self.minsize(1200, 880)
