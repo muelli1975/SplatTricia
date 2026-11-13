@@ -77,7 +77,7 @@ Download all three ZIP files from the [SplatTricia 1.1 release](https://github.c
 - [SplatTricia_1.1_Runtime_2.zip](https://github.com/muelli1975/SplatTricia/releases/download/v1.1/SplatTricia_1.1_Runtime_2.zip) — runtime libraries, part 2
 
 1. Extract **every ZIP into the same destination directory**, merging their shared `SplatTricia` subfolder. Do not extract them into separate folders named after each archive.
-2. Obtain the SHARP checkpoint yourself from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp). Read and accept Apple's model terms before downloading.
+2. Obtain the SHARP checkpoint directly from [Apple's official project](https://github.com/apple-aiml-research/ml-sharp). Read and accept Apple's model terms before downloading.
 3. Place `sharp_2572gikvuh.pt` in `SplatTricia\models`.
 4. Start `SplatTricia\SplatTricia.exe`.
 
